@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F0EBE1">
+<title>Guarda Joaquim 2026</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3VhcmRhIEpvYXF1aW0gMjAyNiIsInNob3J0X25hbWUiOiJHdWFyZGEiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI0YwRUJFMSIsInRoZW1lX2NvbG9yIjoiI0YwRUJFMSIsImljb25zIjpbXX0=">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F0EBE1;--surface:#FDFAF5;--surface2:#EDE8DE;--surface3:#E4DFD5;
+  --mae:#9B6BB0;--mae-light:#F0E6F6;--mae-mid:rgba(155,107,176,0.15);
+  --pai:#4A7FB5;--pai-light:#E1EEF8;--pai-mid:rgba(74,127,181,0.15);
+  --accent:#C4873B;--accent-light:rgba(196,135,59,0.12);
+  --danger:#BF4E4E;--success:#5A9E6F;--shared:#D4A843;--shared-light:rgba(212,168,67,0.15);
+  --text:#3D3529;--text2:#7A7265;--text3:#A9A196;
+  --radius:14px;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;max-width:480px;margin:0 auto;padding:0 10px 80px}
+h1{font-family:'Fraunces',serif}
+
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius);padding:4px;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tab{flex:1;padding:10px 4px;border:none;cursor:pointer;font:600 11px 'Outfit',sans-serif;background:none;color:var(--text3);border-radius:10px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:4px}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.tab .badge{background:var(--accent);color:#fff;border-radius:10px;font-size:9px;padding:1px 6px;font-weight:800}
+
+.card{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.stat-row{display:flex;gap:6px;margin-bottom:8px}
+.stat{flex:1;border-radius:12px;padding:10px 6px;text-align:center}
+.stat-val{font-size:22px;font-weight:800;font-family:'Fraunces',serif}
+.stat-label{font-size:9px;font-weight:600;margin-top:2px}
+.stat-diff{font-size:9px;font-weight:700;margin-top:1px}
+
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 0;margin-bottom:8px}
+.month-btn{width:36px;height:36px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text);transition:.2s}
+.month-btn:disabled{opacity:.3;cursor:default}
+.month-btn:active{background:var(--surface3)}
+.month-name{font-size:16px;font-weight:700;font-family:'Fraunces',serif}
+.month-sub{font-size:9px;color:var(--text3)}
+
+.cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-header span{text-align:center;font-size:9px;font-weight:700;color:var(--text3);padding:4px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+
+.day{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:.15s;min-height:44px;border:2px solid transparent}
+.day.mae{background:var(--mae-light);border-color:rgba(155,107,176,0.15)}
+.day.pai{background:var(--pai-light);border-color:rgba(74,127,181,0.15)}
+.day.shared{background:var(--shared-light);border-color:rgba(212,168,67,0.2)}
+.day.inactive{background:var(--surface2);opacity:.3;cursor:default;border-color:transparent}
+.day.today{border-color:var(--accent)!important;box-shadow:0 0 8px rgba(196,135,59,0.25)}
+.day.editing{border-color:var(--accent)!important;background:var(--accent-light)!important}
+.day.changed::after{content:'✏️';position:absolute;top:1px;right:2px;font-size:7px}
+.day-num{font-size:13px;font-weight:600}
+.day.today .day-num{color:var(--accent);font-weight:800}
+.day.mae .day-num{color:var(--mae)}
+.day.pai .day-num{color:var(--pai)}
+.day.shared .day-num{color:var(--shared)}
+.day-tag{font-size:7px;font-weight:700;margin-top:1px}
+.day.mae .day-tag{color:var(--mae)}
+.day.pai .day-tag{color:var(--pai)}
+.day.shared .day-tag{color:var(--shared)}
+.day-hol{font-size:6px;color:var(--accent)}
+
+.legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.legend span{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--text2)}
+.legend-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.edit-panel{border-left:4px solid var(--accent);animation:slideUp .2s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.edit-title{font-size:14px;font-weight:700}
+.edit-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.edit-hol{font-size:11px;color:var(--accent);font-weight:600;margin-top:2px}
+.edit-badge{font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px}
+.edit-actions{display:flex;gap:8px;margin-top:12px}
+.btn-swap{flex:1;padding:12px;border:none;border-radius:10px;cursor:pointer;font:700 13px 'Outfit',sans-serif;transition:.15s}
+.btn-swap:active{transform:scale(.97)}
+.btn-close{padding:12px 18px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;background:var(--surface2);color:var(--text2)}
+
+.holiday-card{border-radius:12px;padding:12px 14px;background:var(--surface);margin-bottom:8px;border-left:4px solid;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.holiday-card.mae{border-color:var(--mae)}
+.holiday-card.pai{border-color:var(--pai)}
+.holiday-card.shared{border-color:var(--shared)}
+.holiday-card.past{opacity:.4}
+.hol-name{font-size:14px;font-weight:700}
+.hol-date{font-size:12px;color:var(--text2);margin-top:1px}
+.hol-badge{padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.hol-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.hol-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--text2)}
+.hol-tag.fixed{background:rgba(196,135,59,0.12);color:var(--accent)}
+.hol-tag.alt{background:rgba(90,158,111,0.12);color:var(--success)}
+.hol-tag.shr{background:var(--shared-light);color:var(--shared)}
+.btn-hol-swap{margin-top:10px;width:100%;padding:10px;border:none;border-radius:8px;cursor:pointer;font:700 12px 'Outfit',sans-serif;transition:.15s}
+.btn-hol-swap:active{transform:scale(.98)}
+
+.change-item{background:var(--surface);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
+.change-item.mae{border-color:var(--mae)}
+.change-item.pai{border-color:var(--pai)}
+.btn-undo{border:none;background:var(--accent-light);border-radius:8px;padding:6px 10px;font:700 10px 'Outfit',sans-serif;cursor:pointer;color:var(--accent)}
+.btn-reset{border:none;background:rgba(191,78,78,0.1);color:var(--danger);border-radius:8px;padding:6px 12px;font:700 11px 'Outfit',sans-serif;cursor:pointer}
+
+.empty-state{text-align:center;padding:28px}
+.empty-icon{font-size:36px;margin-bottom:8px}
+.empty-title{font-size:15px;font-weight:700;color:var(--success)}
+.empty-sub{font-size:12px;color:var(--text2);margin-top:6px}
+.howto{background:var(--surface2);border-radius:10px;padding:12px;margin-top:14px;text-align:left}
+.howto-title{font-size:11px;font-weight:700;margin-bottom:4px}
+.howto-text{font-size:11px;color:var(--text2);line-height:1.7}
+
+.progress{height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--surface2);margin-top:6px}
+.progress-mae{background:linear-gradient(90deg,rgba(155,107,176,0.4),var(--mae));transition:width .3s}
+.progress-pai{background:linear-gradient(90deg,var(--pai),rgba(74,127,181,0.4));transition:width .3s}
+
+details summary{font-size:11px;font-weight:700;cursor:pointer;color:var(--text)}
+.rules{font-size:10px;color:var(--text2);line-height:1.8;margin-top:6px}
+
+.sync-bar{display:flex;gap:6px;margin-bottom:10px}
+.btn-sync{flex:1;padding:9px;border:none;border-radius:8px;cursor:pointer;font:600 10px 'Outfit',sans-serif;background:var(--surface2);color:var(--text2);transition:.15s}
+.btn-sync:active{background:var(--surface3)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:100;animation:fadeInOut 2s ease forwards}
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}85%{opacity:1}100%{opacity:0}}
+
+.footer{text-align:center;font-size:8px;color:var(--text3);margin:14px 0 4px}
+.sync-status{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;color:var(--text2);margin-bottom:8px}
+.sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sync-dot.online{background:var(--success);box-shadow:0 0 6px rgba(90,158,111,0.5)}
+.sync-dot.offline{background:var(--danger)}
+.sync-dot.loading{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.setup-screen{padding:30px 16px;text-align:center}
+.setup-input{width:100%;padding:10px 12px;border:2px solid var(--surface3);border-radius:10px;font:500 13px 'Outfit',sans-serif;background:var(--surface);color:var(--text);margin:6px 0;outline:none}
+.setup-input:focus{border-color:var(--accent)}
+.setup-btn{width:100%;padding:12px;border:none;border-radius:10px;font:700 14px 'Outfit',sans-serif;background:var(--accent);color:#fff;cursor:pointer;margin-top:10px}
+.impact-warn{font-size:10px;color:var(--danger);font-weight:600;text-align:center;margin-top:8px;padding:6px 8px;background:rgba(191,78,78,0.08);border-radius:6px}
+.birthday-banner{background:linear-gradient(135deg,#FFF8ED,#FEF0D5);border:1.5px solid rgba(212,168,67,0.3);border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:11px;color:var(--accent);font-weight:600;text-align:center}
+</style>
+</head>
+<body>
+<div style="text-align:center;padding:16px 0 12px">
+  <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.5px">Guarda Joaquim · 2026</h1>
+  <p style="font-size:10px;color:var(--text3);margin-top:3px">10/Abr a 31/Dez · Guarda Compartilhada · Recife/PE</p>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div id="app"></div>
+<p class="footer">Eduardo & Raquel · Guarda Compartilhada · Recife/PE 2026</p>
+<div id="toasts"></div>
+
+<script>
+const R="Raquel",E="Eduardo",S="Compartilhado";
+const MO=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DA=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const START="2026-04-10",END="2026-12-31";
+
+const HOL={
+  "2026-04-21":{name:"Tiradentes",type:"Nacional"},
+  "2026-05-01":{name:"Dia do Trabalhador",type:"Nacional"},
+  "2026-05-10":{name:"Dia das Mães",type:"Comemorativo"},
+  "2026-06-04":{name:"Corpus Christi",type:"Facultativo"},
+  "2026-06-24":{name:"São João",type:"Estadual"},
+  "2026-07-16":{name:"N.S. do Carmo",type:"Municipal"},
+  "2026-07-20":{name:"🎂 Aniversário do Joaquim",type:"Pessoal"},
+  "2026-07-27":{name:"🎂 Aniversário do Eduardo",type:"Pessoal"},
+  "2026-08-09":{name:"Dia dos Pais",type:"Comemorativo"},
+  "2026-09-07":{name:"Independência",type:"Nacional"},
+  "2026-09-28":{name:"🎂 Aniversário da Raquel",type:"Pessoal"},
+  "2026-10-12":{name:"N.S. Aparecida / Crianças",type:"Nacional"},
+  "2026-11-02":{name:"Finados",type:"Nacional"},
+  "2026-11-15":{name:"Proclamação da República",type:"Nacional"},
+  "2026-11-20":{name:"Consciência Negra",type:"Nacional"},
+  "2026-12-08":{name:"Imaculada Conceição",type:"Municipal"},
+  "2026-12-25":{name:"Natal",type:"Nacional"},
+};
+
+function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function dim(y,m){return new Date(y,m+1,0).getDate()}
+function gdow(y,m,d){return new Date(y,m,d).getDay()}
+function inR(k){return k>=START&&k<=END}
+function today(){const n=new Date();return dk(n.getFullYear(),n.getMonth(),n.getDate())}
+
+function buildBase(){
+  const s={},n={};
+  const ref=new Date(2026,3,10);
+  for(let m=3;m<12;m++){for(let d=1;d<=dim(2026,m);d++){
+    const k=dk(2026,m,d);if(!inR(k))continue;
+    const w=gdow(2026,m,d);
+    if(w===1||w===2){s[k]=R;n[k]="Regime semanal (Seg/Ter)";}
+    else if(w===3||w===4){s[k]=E;n[k]="Regime semanal (Qua/Qui)";}
+    else{let fri;if(w===5)fri=new Date(2026,m,d);else if(w===6)fri=new Date(2026,m,d-1);else fri=new Date(2026,m,d-2);
+      const diff=Math.round((fri-ref)/(7*86400000));s[k]=diff%2===0?R:E;n[k]="Fim de semana alternado";}
+  }}
+  // Fixed dates
+  s["2026-12-25"]=R;n["2026-12-25"]="Natal — fixo com a mãe";
+  s["2026-05-10"]=R;n["2026-05-10"]="Dia das Mães — fixo com a mãe";
+  s["2026-08-09"]=E;n["2026-08-09"]="Dia dos Pais — fixo com o pai";
+  // Birthdays
+  s["2026-07-20"]=R;n["2026-07-20"]="🎂 Aniversário do Joaquim — alternado (2026: mãe)";
+  s["2026-07-27"]=E;n["2026-07-27"]="🎂 Aniversário do Eduardo — fixo com o pai";
+  s["2026-09-28"]=R;n["2026-09-28"]="🎂 Aniversário da Raquel — fixo com a mãe";
+  // Alternating holidays
+  const alt=["2026-04-21","2026-05-01","2026-06-04","2026-06-24","2026-07-16","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-08"];
+  let t=true;for(const k of alt){if(s[k]!==undefined){s[k]=t?R:E;n[k]=(HOL[k]?.name||"Feriado")+" — alternado";t=!t;}}
+  // Trocas acordadas — Junho 2026
+  // Eduardo fica com o bloco do Corpus Christi (01-05/06)
+  s["2026-06-01"]=E;n["2026-06-01"]="Troca acordada — bloco Corpus Christi (pai)";
+  s["2026-06-02"]=E;n["2026-06-02"]="Troca acordada — bloco Corpus Christi (pai)";
+  s["2026-06-04"]=E;n["2026-06-04"]="Corpus Christi — troca acordada (pai)";
+  s["2026-06-05"]=E;n["2026-06-05"]="Troca acordada — bloco Corpus Christi (pai)";
+  // Raquel fica com o bloco do São João (24-25/06)
+  s["2026-06-24"]=R;n["2026-06-24"]="São João — troca acordada (mãe)";
+  s["2026-06-25"]=R;n["2026-06-25"]="Troca acordada — bloco São João (mãe)";
+  return{s,n};
+}
+
+const{s:BASE,n:NOTES}=buildBase();
+let schedule={...BASE};
+let changes={};
+let tab='cal',month=new Date().getMonth()<3?3:Math.min(new Date().getMonth(),11),editing=null;
+let syncState='loading'; // 'online','offline','loading'
+let db=null;
+
+// ===== FIREBASE CONFIG =====
+// Cole aqui sua configuração do Firebase
+const FIREBASE_CONFIG = {
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI.firebaseapp.com",
+  databaseURL: "https://COLE_AQUI-default-rtdb.firebaseio.com",
+  projectId: "COLE_AQUI",
+  storageBucket: "COLE_AQUI.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "COLE_AQUI"
+};
+
+function initFirebase(){
+  if(FIREBASE_CONFIG.apiKey==="COLE_AQUI"){
+    syncState='offline';
+    // Load from localStorage as fallback
+    schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
+    changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
+    render();
+    return;
+  }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.database();
+    // Listen for real-time changes
+    db.ref('guarda2026/changes').on('value',(snap)=>{
+      const data=snap.val();
+      changes=data||{};
+      // Rebuild schedule from base + changes
+      schedule={...BASE};
+      for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
+      // Cache locally
+      localStorage.setItem('gj26_s',JSON.stringify(schedule));
+      localStorage.setItem('gj26_c',JSON.stringify(changes));
+      syncState='online';
+      render();
+    });
+    db.ref('.info/connected').on('value',(snap)=>{
+      syncState=snap.val()?'online':'offline';
+      render();
+    });
+  }catch(e){
+    console.error('Firebase error:',e);
+    syncState='offline';
+    schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
+    changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
+    render();
+  }
+}
+
+function save(){
+  localStorage.setItem('gj26_s',JSON.stringify(schedule));
+  localStorage.setItem('gj26_c',JSON.stringify(changes));
+  if(db){
+    db.ref('guarda2026/changes').set(changes).then(()=>{
+      toast('✅ Sincronizado');
+    }).catch(()=>{toast('⚠️ Salvo localmente');});
+  }
+}
+function swap(k){const cur=schedule[k];const nv=cur===R?E:cur===E?R:E;schedule[k]=nv;
+  if(nv!==BASE[k])changes[k]={from:BASE[k],to:nv,by:localStorage.getItem('gj26_user')||'?',at:new Date().toISOString()};else delete changes[k];save();editing=null;render();}
+function undo(k){schedule[k]=BASE[k];delete changes[k];save();render();}
+function resetAll(){if(!confirm('Tem certeza que deseja resetar todas as alterações?'))return;schedule={...BASE};changes={};save();editing=null;render();}
+function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),2100);}
+
+function getSyncHTML(){
+  const dot=syncState==='online'?'online':syncState==='loading'?'loading':'offline';
+  const label=syncState==='online'?'Sincronizado em tempo real':syncState==='loading'?'Conectando...':'Modo offline (salvo local)';
+  return `<div class="sync-status"><span class="sync-dot ${dot}"></span>${label}</div>`;
+}
+
+// Set user identity
+if(!localStorage.getItem('gj26_user')){
+  const u=prompt('Quem é você?\n\n1 - Eduardo (pai)\n2 - Raquel (mãe)');
+  localStorage.setItem('gj26_user',u==='1'||u?.toLowerCase().includes('edu')?'Eduardo':'Raquel');
+}
+
+initFirebase();
+
+function clsFor(k){return schedule[k]===S?'shared':schedule[k]===R?'mae':'pai'}
+function colorFor(k){return schedule[k]===S?'var(--shared)':schedule[k]===R?'var(--mae)':'var(--pai)'}
+function bgFor(k){return schedule[k]===S?'var(--shared-light)':schedule[k]===R?'var(--mae-light)':'var(--pai-light)'}
+function labelFor(k){return schedule[k]===S?'AMBOS':schedule[k]===R?'MÃE':'PAI'}
+function nameFor(k){return schedule[k]===S?'👨‍👩 Ambos':schedule[k]===R?'👩 Raquel':'👨 Eduardo'}
+
+function getTotals(){
+  let r=0,e=0,s=0;for(const[k,v]of Object.entries(schedule)){if(inR(k)){v===R?r++:v===E?e++:s++;}}
+  let rO=0,eO=0;for(const[k,v]of Object.entries(BASE)){if(inR(k)){v===R?rO++:v===E?eO++:0;}}
+  return{r,e,s,rD:r-rO,eD:e-eO,total:r+e+s};
+}
+function getMTotals(m){
+  let r=0,e=0,s=0;for(let d=1;d<=dim(2026,m);d++){const k=dk(2026,m,d);if(!inR(k))continue;const v=schedule[k];v===R?r++:v===E?e++:s++;}
+  return{r,e,s};
+}
+
+function renderTabs(){
+  const cc=Object.keys(changes).length;
+  document.getElementById('tabs').innerHTML=[
+    {id:'cal',icon:'📅',label:'Calendário'},
+    {id:'fer',icon:'⭐',label:'Feriados'},
+    {id:'alt',icon:'✏️',label:'Alterações'}
+  ].map(t=>`<button class="tab${tab===t.id?' active':''}" onclick="tab='${t.id}';editing=null;render()">${t.icon} ${t.label}${t.id==='alt'&&cc>0?` <span class="badge">${cc}</span>`:''}</button>`).join('');
+}
+
+function renderCal(){
+  const t=getTotals(),mt=getMTotals(month),td=today(),pR=t.total?Math.round(t.r/t.total*100):0,pE=t.total?Math.round(t.e/t.total*100):0;
+  let h='';
+  h+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <span style="font-size:11px;font-weight:700">Balanço (${t.total} dias)</span>
+    <span style="font-size:10px;color:${Math.abs(t.r-t.e)<=5?'var(--success)':'var(--accent)'};font-weight:700">Diff: ${Math.abs(t.r-t.e)}</span>
+  </div><div class="stat-row">
+    <div class="stat" style="background:var(--mae-light)"><div class="stat-val" style="color:var(--mae)">${t.r}</div><div class="stat-label" style="color:var(--mae)">Raquel (${pR}%)</div>${t.rD?`<div class="stat-diff" style="color:${t.rD>0?'var(--success)':'var(--danger)'}">${t.rD>0?'+':''}${t.rD}</div>`:''}</div>
+    <div class="stat" style="background:var(--pai-light)"><div class="stat-val" style="color:var(--pai)">${t.e}</div><div class="stat-label" style="color:var(--pai)">Eduardo (${pE}%)</div>${t.eD?`<div class="stat-diff" style="color:${t.eD>0?'var(--success)':'var(--danger)'}">${t.eD>0?'+':''}${t.eD}</div>`:''}</div>
+    ${t.s?`<div class="stat" style="background:var(--shared-light)"><div class="stat-val" style="color:var(--shared)">${t.s}</div><div class="stat-label" style="color:var(--shared)">Ambos</div></div>`:''}
+  </div><div class="progress"><div class="progress-mae" style="width:${pR}%"></div><div class="progress-pai" style="width:${pE}%"></div></div></div>`;
+
+  h+=getSyncHTML();
+
+  h+=`<div class="card"><div class="month-nav">
+    <button class="month-btn" onclick="month=Math.max(3,month-1);editing=null;render()" ${month<=3?'disabled':''}>‹</button>
+    <div style="text-align:center"><div class="month-name">${MO[month]} 2026</div><div class="month-sub">R: ${mt.r} · E: ${mt.e}${mt.s?' · 🤝 '+mt.s:''}</div></div>
+    <button class="month-btn" onclick="month=Math.min(11,month+1);editing=null;render()" ${month>=11?'disabled':''}>›</button>
+  </div>`;
+
+  h+=`<div class="legend">
+    <span><span class="legend-dot" style="background:var(--mae-light);border:1.5px solid rgba(155,107,176,0.3)"></span>Mãe</span>
+    <span><span class="legend-dot" style="background:var(--pai-light);border:1.5px solid rgba(74,127,181,0.3)"></span>Pai</span>
+    <span><span class="legend-dot" style="background:var(--shared-light);border:1.5px solid rgba(212,168,67,0.3)"></span>Ambos</span>
+    <span><span class="legend-dot" style="border:2.5px solid var(--accent)"></span>Hoje</span>
+    <span>⭐ Feriado/🎂</span></div>`;
+
+  const days=dim(2026,month),first=gdow(2026,month,1);
+  h+=`<div class="cal-header">${DA.map(d=>`<span>${d}</span>`).join('')}</div><div class="cal-grid">`;
+  for(let i=0;i<first;i++)h+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const k=dk(2026,month,d),active=inR(k);
+    if(!active){h+=`<div class="day inactive"><span class="day-num">${d}</span></div>`;continue;}
+    const cl=clsFor(k),isTd=k===td,isH=HOL[k],isCh=changes[k],isEd=editing===k;
+    h+=`<div class="day ${cl}${isTd?' today':''}${isEd?' editing':''}${isCh?' changed':''}" onclick="editing=editing==='${k}'?null:'${k}';render()">
+      <span class="day-num">${d}</span>${isH?`<span class="day-hol">${isH.name.includes('🎂')?'🎂':'⭐'}</span>`:''}
+      <span class="day-tag">${labelFor(k)}</span></div>`;
+  }
+  h+=`</div></div>`;
+
+  if(editing&&inR(editing)){
+    const dw=DA[new Date(editing+'T12:00:00').getDay()],isShared=schedule[editing]===S;
+    h+=`<div class="card edit-panel"><div style="display:flex;justify-content:space-between;align-items:center"><div>
+      <div class="edit-title">${parseInt(editing.slice(8))}/${parseInt(editing.slice(5,7))}/2026 — ${dw}</div>
+      <div class="edit-sub">${NOTES[editing]||'Regime semanal'}</div>
+      ${HOL[editing]?`<div class="edit-hol">${HOL[editing].name}</div>`:''}
+      ${changes[editing]?`<div style="font-size:10px;color:var(--accent);margin-top:2px">✏️ Original: ${changes[editing].from}</div>`:''}
+    </div><div class="edit-badge" style="color:${colorFor(editing)};background:${bgFor(editing)}">${nameFor(editing)}</div></div>
+    <div class="edit-actions">
+      ${isShared?`
+        <button class="btn-swap" style="background:var(--mae-light);color:var(--mae)" onclick="schedule['${editing}']='${R}';if('${R}'!==BASE['${editing}'])changes['${editing}']={from:BASE['${editing}'],to:'${R}'};else delete changes['${editing}'];save();editing=null;render()">👩 Raquel</button>
+        <button class="btn-swap" style="background:var(--pai-light);color:var(--pai)" onclick="schedule['${editing}']='${E}';if('${E}'!==BASE['${editing}'])changes['${editing}']={from:BASE['${editing}'],to:'${E}'};else delete changes['${editing}'];save();editing=null;render()">👨 Eduardo</button>
+      `:`
+        <button class="btn-swap" style="background:${schedule[editing]===R?'var(--pai-light)':'var(--mae-light)'};color:${schedule[editing]===R?'var(--pai)':'var(--mae)'}" onclick="swap('${editing}')">🔄 Trocar para ${schedule[editing]===R?'Eduardo':'Raquel'}</button>
+      `}
+      <button class="btn-close" onclick="editing=null;render()">✕</button>
+    </div></div>`;
+  }
+
+  h+=`<details class="card"><summary>📋 Regras do Acordo</summary><div class="rules">
+    <div><strong>Seg/Ter:</strong> Raquel · <strong>Qua/Qui:</strong> Eduardo</div>
+    <div><strong>Sex/Sáb/Dom:</strong> Alternados (início 10/04 → Raquel)</div>
+    <div><strong>Natal:</strong> Raquel · <strong>Dia das Mães:</strong> Raquel · <strong>Dia dos Pais:</strong> Eduardo</div>
+    <div><strong>Aniversário da Raquel (28/09):</strong> sempre com a mãe</div>
+    <div><strong>Aniversário do Eduardo (27/07):</strong> sempre com o pai</div>
+    <div><strong>Aniversário do Joaquim (20/07):</strong> alternado (2026: mãe)</div>
+    <div><strong>20/07:</strong> Aniv. Joaquim (compartilhado) · <strong>27/07:</strong> Aniv. Eduardo (com pai) · <strong>28/07:</strong> Aniv. Raquel (com mãe)</div>
+    <div><strong>Demais feriados:</strong> Alternância a partir de Tiradentes</div></div></details>`;
+  return h;
+}
+
+function renderFer(){
+  const td=today();
+  const list=Object.entries(HOL).filter(([k])=>inR(k)).sort(([a],[b])=>a.localeCompare(b));
+  const cR=list.filter(([k])=>schedule[k]===R).length,cE=list.filter(([k])=>schedule[k]===E).length,cS=list.filter(([k])=>schedule[k]===S).length;
+  let h=`<div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif;margin-bottom:4px">Feriados & Datas Especiais</div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:10px">Abr a Dez 2026 · Toque em "Trocar" para alterar</div>
+    <div class="stat-row">
+      <div class="stat" style="background:var(--mae-light)"><div class="stat-val" style="color:var(--mae)">${cR}</div><div class="stat-label" style="color:var(--mae)">Raquel</div></div>
+      <div class="stat" style="background:var(--pai-light)"><div class="stat-val" style="color:var(--pai)">${cE}</div><div class="stat-label" style="color:var(--pai)">Eduardo</div></div>
+      ${cS?`<div class="stat" style="background:var(--shared-light)"><div class="stat-val" style="color:var(--shared)">${cS}</div><div class="stat-label" style="color:var(--shared)">Ambos</div></div>`:''}
+    </div>`;
+  for(const[k,info]of list){
+    const cl=clsFor(k),isPast=k<td,dn=DA[new Date(k+'T12:00:00').getDay()],note=NOTES[k]||'',isShared=schedule[k]===S;
+    const isBday=info.name.includes('🎂');
+    h+=`<div class="holiday-card ${cl}${isPast?' past':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px">
+        <div style="flex:1"><div class="hol-name">${info.name}</div><div class="hol-date">${parseInt(k.slice(8))}/${parseInt(k.slice(5,7))} · ${dn}${isPast?' · Passado':''}</div></div>
+        <span class="hol-badge" style="background:${bgFor(k)};color:${colorFor(k)}">${nameFor(k)}</span></div>
+      <div class="hol-tags"><span class="hol-tag">${info.type}</span>
+        ${note.includes('fixo')?'<span class="hol-tag fixed">🔒 Fixo</span>':note.includes('compartilhado')?'<span class="hol-tag shr">🤝 Compartilhado</span>':'<span class="hol-tag alt">🔄 Alternado</span>'}
+        ${changes[k]?`<span style="font-size:10px;color:var(--accent);font-weight:600">✏️ era: ${BASE[k]}</span>`:''}</div>
+      ${!isShared?`<button class="btn-hol-swap" style="background:${schedule[k]===R?'var(--pai-light)':'var(--mae-light)'};color:${schedule[k]===R?'var(--pai)':'var(--mae)'}" onclick="swap('${k}')">🔄 Trocar para ${schedule[k]===R?'Eduardo (pai)':'Raquel (mãe)'}</button>`:''}
+    </div>`;
+  }
+  return h;
+}
+
+function renderAlt(){
+  const cc=Object.keys(changes).length,t=getTotals();
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif">Alterações</div>
+    ${cc>0?'<button class="btn-reset" onclick="resetAll()">🗑️ Resetar tudo</button>':''}</div>`;
+  if(!cc){
+    h+=`<div class="card empty-state"><div class="empty-icon">✅</div><div class="empty-title">Nenhuma alteração</div><div class="empty-sub">Calendário conforme o acordo original.</div>
+      <div class="howto"><div class="howto-title">Como alterar um dia:</div><div class="howto-text">
+        1️⃣ Aba <strong>Calendário</strong> ou <strong>Feriados</strong><br>
+        2️⃣ Toque no dia desejado<br>
+        3️⃣ Botão <strong>"🔄 Trocar"</strong><br>
+        4️⃣ Balanço recalcula automaticamente</div></div></div>`;
+  } else {
+    h+=`<div class="card"><div style="font-size:11px;font-weight:700;margin-bottom:6px">Impacto no balanço</div>
+      <div class="stat-row"><div class="stat" style="background:var(--mae-light);padding:8px"><div style="font-size:16px;font-weight:800;color:${t.rD>0?'var(--success)':t.rD<0?'var(--danger)':'var(--mae)'}">${t.rD>0?'+':''}${t.rD}</div><div class="stat-label" style="color:var(--mae)">Raquel</div></div>
+      <div class="stat" style="background:var(--pai-light);padding:8px"><div style="font-size:16px;font-weight:800;color:${t.eD>0?'var(--success)':t.eD<0?'var(--danger)':'var(--pai)'}">${t.eD>0?'+':''}${t.eD}</div><div class="stat-label" style="color:var(--pai)">Eduardo</div></div></div>
+      ${Math.abs(t.r-t.e)>10?`<div class="impact-warn">⚠️ Desbalanceamento de ${Math.abs(t.r-t.e)} dias</div>`:''}</div>`;
+    for(const[k,v]of Object.entries(changes).sort(([a],[b])=>a.localeCompare(b))){
+      const hol=HOL[k],isR=v.to===R;
+      h+=`<div class="change-item ${isR?'mae':'pai'}"><div>
+        <div style="font-size:12px;font-weight:600">${parseInt(k.slice(8))}/${parseInt(k.slice(5,7))}${hol?' — '+hol.name:''}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px"><span style="text-decoration:line-through">${v.from}</span> → <strong style="color:${isR?'var(--mae)':'var(--pai)'}">${v.to}</strong>${v.by?` · por ${v.by}`:''}</div>
+      </div><button class="btn-undo" onclick="undo('${k}');render()">↩ Desfazer</button></div>`;
+    }
+  }
+  h+=getSyncHTML();
+  return h;
+}
+
+function render(){
+  renderTabs();
+  const app=document.getElementById('app');
+  if(tab==='cal')app.innerHTML=renderCal();
+  else if(tab==='fer')app.innerHTML=renderFer();
+  else app.innerHTML=renderAlt();
+}
+// render() is called by initFirebase()
+</script>
+</body>
+</html>
