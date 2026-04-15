@@ -206,19 +206,28 @@ function buildBase(){
   // Alternating holidays
   const alt=["2026-04-21","2026-05-01","2026-06-04","2026-06-24","2026-07-16","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-08"];
   let t=true;for(const k of alt){if(s[k]!==undefined){s[k]=t?R:E;n[k]=(HOL[k]?.name||"Feriado")+" — alternado";t=!t;}}
-  // Trocas acordadas — Junho 2026
-  // Eduardo fica com o bloco do Corpus Christi (01-05/06)
-  s["2026-06-01"]=E;n["2026-06-01"]="Troca acordada — bloco Corpus Christi (pai)";
-  s["2026-06-02"]=E;n["2026-06-02"]="Troca acordada — bloco Corpus Christi (pai)";
-  s["2026-06-04"]=E;n["2026-06-04"]="Corpus Christi — troca acordada (pai)";
-  s["2026-06-05"]=E;n["2026-06-05"]="Troca acordada — bloco Corpus Christi (pai)";
-  // Raquel fica com o bloco do São João (24-25/06)
-  s["2026-06-24"]=R;n["2026-06-24"]="São João — troca acordada (mãe)";
-  s["2026-06-25"]=R;n["2026-06-25"]="Troca acordada — bloco São João (mãe)";
   return{s,n};
 }
 
 const{s:BASE,n:NOTES}=buildBase();
+
+// Trocas acordadas — registradas como alterações para aparecerem na aba "Alterações"
+const INITIAL_CHANGES={
+  "2026-06-01":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
+  "2026-06-02":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
+  "2026-06-04":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Corpus Christi"},
+  "2026-06-05":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
+  "2026-06-24":{from:"Eduardo",to:"Raquel",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"São João"},
+  "2026-06-25":{from:"Eduardo",to:"Raquel",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco São João"},
+};
+function mergeInitialChanges(){
+  let added=false;
+  for(const[k,v]of Object.entries(INITIAL_CHANGES)){
+    if(!changes[k]){changes[k]=v;schedule[k]=(v.to==='Raquel'?R:E);added=true;}
+  }
+  return added;
+}
+
 let schedule={...BASE};
 let changes={};
 let tab='cal',month=new Date().getMonth()<3?3:Math.min(new Date().getMonth(),11),editing=null;
@@ -243,6 +252,7 @@ function initFirebase(){
     // Load from localStorage as fallback
     schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
     changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
+    mergeInitialChanges();save();
     render();
     return;
   }
@@ -255,7 +265,9 @@ function initFirebase(){
       changes=data||{};
       // Rebuild schedule from base + changes
       schedule={...BASE};
+      const seeded=mergeInitialChanges();
       for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
+      if(seeded){db.ref('guarda2026/changes').set(changes);}
       // Cache locally
       localStorage.setItem('gj26_s',JSON.stringify(schedule));
       localStorage.setItem('gj26_c',JSON.stringify(changes));
@@ -271,6 +283,7 @@ function initFirebase(){
     syncState='offline';
     schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
     changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
+    mergeInitialChanges();save();
     render();
   }
 }
