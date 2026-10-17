@@ -342,6 +342,14 @@ function loadYear(y){
   initFirebase();
 }
 function changeYear(d){loadYear(year+d);}
+function prevMonth(){
+  if(month>getMinMonth()){month--;editing=null;render();}
+  else if(year>2026){year--;const res=buildBase(year);BASE=res.s;NOTES=res.n;HOL=res.hol;schedule={...BASE};changes={};month=11;editing=null;document.getElementById('yearLabel').textContent=year;document.getElementById('yearPrev').disabled=(year<=2026);document.getElementById('subtitle').textContent='Jan a Dez · Guarda Compartilhada · Recife/PE';document.title=`Guarda Joaquim · ${year}`;initFirebase();}
+}
+function nextMonth(){
+  if(month<11){month++;editing=null;render();}
+  else{year++;const res=buildBase(year);BASE=res.s;NOTES=res.n;HOL=res.hol;schedule={...BASE};changes={};month=0;editing=null;document.getElementById('yearLabel').textContent=year;document.getElementById('yearPrev').disabled=(year<=2026);document.getElementById('subtitle').textContent='Jan a Dez · Guarda Compartilhada · Recife/PE';document.title=`Guarda Joaquim · ${year}`;initFirebase();}
+}
 
 // ===== FIREBASE =====
 const FIREBASE_CONFIG = {
@@ -468,9 +476,9 @@ function renderCal(){
   }
 
   h+=`<div class="card"><div class="month-nav">
-    <button class="month-btn" onclick="month=Math.max(${minM},month-1);editing=null;render()" ${month<=minM?'disabled':''}>‹</button>
+    <button class="month-btn" onclick="prevMonth()" ${year<=2026&&month<=minM?'disabled':''}>‹</button>
     <div style="text-align:center"><div class="month-name">${MO[month]} ${year}</div><div class="month-sub">R: ${mt.r} · E: ${mt.e}${mt.s?' · 🤝 '+mt.s:''}</div></div>
-    <button class="month-btn" onclick="month=Math.min(11,month+1);editing=null;render()" ${month>=11?'disabled':''}>›</button>
+    <button class="month-btn" onclick="nextMonth()">›</button>
   </div>`;
 
   h+=`<div class="legend">
