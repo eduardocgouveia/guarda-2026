@@ -272,6 +272,9 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
 .f-row label{min-width:0;display:block}
 .field{min-width:0;max-width:100%}
 input[type=date].field,input[type=time].field{font-size:15px;padding:12px 10px}
+.row-acts{display:flex;gap:2px;flex-shrink:0}
+.loc{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:13px;font-weight:500;color:var(--aviso);text-decoration:none}
+.btn.del{background:none;color:var(--bad);height:44px}
 </style>
 </head>
 <body>
@@ -592,6 +595,8 @@ const whoName=k=>schedule[k]===S?'Ambos':schedule[k];
 const DL=['D','S','T','Q','Q','S','S'];
 const DFULL=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const IC={
+  edit:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  pin:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   left:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
@@ -771,7 +776,7 @@ function renderAlt(){
 function renderSheet(){
   const sh=document.getElementById('sheet'),sc=document.getElementById('scrim');
   if(form){
-    if(sh.dataset.mode!=='form'){sh.dataset.mode='form';sh.innerHTML=formHTML();sh.scrollTop=0;}
+    if(sh.dataset.mode!=='form'){sh.dataset.mode='form';sh.innerHTML=formHTML();sh.scrollTop=0;if(form.editId)fillForm();}
     requestAnimationFrame(()=>{sh.classList.add('open');sc.classList.add('open');});
     return;
   }
@@ -856,16 +861,18 @@ function avRow(a,inSheet,dayK){
   if(isRec(a))meta.push(`até ${dmy(avEnd(a))}`);
   else if(per)meta.push(`${dmy(a.date_key)} a ${dmy(avEnd(a))}`);
   if(h)meta.push(esc(h));
+  if(a.local&&!inSheet)meta.push(esc(a.local));
   meta.push('por '+esc(a.created_by));
   if(a.alerta===false)meta.push('sem alerta');
-  const main=`<div class="av-main"><p>${esc(a.texto)}</p><div class="av-meta">${meta.join('<span>·</span>')}</div>`;
+  const loc=inSheet&&a.local?`<a class="loc" href="https://maps.apple.com/?q=${encodeURIComponent(a.local)}" target="_blank" rel="noopener">${IC.pin}${esc(a.local)}</a>`:'';
+  const main=`<div class="av-main"><p>${esc(a.texto)}</p>${loc}<div class="av-meta">${meta.join('<span>·</span>')}</div>`;
   if(inSheet){
     const pend=pendDel&&pendDel.id===a.id;
     return `<div class="av-row">${main}${pend?`<div class="del-opts">
         <button class="small-btn" onclick="skipDay(${a.id},'${dayK}')">Só neste dia</button>
         <button class="small-btn danger" onclick="removeAviso(${a.id})">Toda a série</button>
         <button class="small-btn" onclick="pendDel=null;render()">Manter</button></div>`:''}</div>
-      ${pend?'':`<button class="x" onclick="askDel(${a.id})" aria-label="Apagar aviso">${IC.x}</button>`}</div>`;
+      ${pend?'':`<div class="row-acts"><button class="x" onclick="openEdit(${a.id})" aria-label="Editar aviso">${IC.edit}</button><button class="x" onclick="askDel(${a.id})" aria-label="Apagar aviso">${IC.x}</button></div>`}</div>`;
   }
   const td=today(),amanha=addDays(td,1);
   let b,sp,alvo;
@@ -942,14 +949,38 @@ async function removeAviso(id){
 // ----- formulário -----
 function openForm(k){form={date_key:k||today(),modo:'um',tipo:'outro',dias:[],alerta:true};editing=null;pendDel=null;render();}
 function closeForm(){form=null;render();}
+function openEdit(id){
+  const a=AV.find(x=>x.id===id);if(!a)return;
+  const modo=isRec(a)?'semana':(a.date_end&&a.date_end!==a.date_key?'varios':'um');
+  form={editId:id,date_key:a.date_key,modo,tipo:a.tipo||'outro',dias:[...(a.dias_semana||[])],alerta:a.alerta!==false,orig:a};
+  editing=null;pendDel=null;
+  const sh=document.getElementById('sheet');sh.dataset.mode='';
+  render();
+}
+async function delFromForm(){
+  const id=form.editId,a=form.orig;
+  if(!confirm(isRec(a)?'Apagar este aviso em todas as semanas?':'Apagar este aviso?'))return;
+  form=null;await removeAviso(id);toast('Aviso apagado');
+}
+function fillForm(){
+  const a=form.orig,v=(id,x)=>{document.getElementById(id).value=x||'';};
+  v('fTxt',a.texto);v('fLocal',a.local);v('fIni',a.date_key);
+  const alerta=form.alerta,dias=[...form.dias];
+  setModo(form.modo);
+  v('fFim',a.date_end);v('fHora',a.hora);v('fHoraFim',a.hora_fim);
+  form.dias=dias;document.querySelectorAll('#fDias .chip').forEach(c=>c.classList.toggle('on',dias.includes(+c.dataset.d)));
+  setAlerta(alerta);
+}
 function formHTML(){
   const outro=(localStorage.getItem('gj_user')==='Raquel')?'o Eduardo':'a Raquel';
   return `<div class="grab"></div>
-    <div class="sh-head"><h3>Novo aviso</h3><button class="x" onclick="closeForm()" aria-label="Fechar">${IC.x}</button></div>
+    <div class="sh-head"><h3>${form.editId?'Editar aviso':'Novo aviso'}</h3><button class="x" onclick="closeForm()" aria-label="Fechar">${IC.x}</button></div>
     <p class="f-label">Tipo</p>
     <div class="chips" id="fTipo">${Object.entries(TIPOS).map(([t,v])=>`<button class="chip${t===form.tipo?' on':''}" data-t="${t}" onclick="pickTipo('${t}')">${v}</button>`).join('')}</div>
     <p class="f-label">O que é</p>
     <input class="field" id="fTxt" maxlength="200" placeholder="${EXEMPLO[form.tipo]}" enterkeyhint="done" autocomplete="off">
+    <p class="f-label">Local (opcional)</p>
+    <input class="field" id="fLocal" maxlength="200" placeholder="Ex.: Buffet Espaço Kids, Boa Viagem" enterkeyhint="done" autocomplete="off">
     <p class="f-label">Quando</p>
     <div class="seg" id="fModo">
       <button data-m="um" class="on" onclick="setModo('um')">Um dia</button>
@@ -965,8 +996,8 @@ function formHTML(){
       <label><small>Início (opcional)</small><input class="field" type="time" id="fHora"></label>
       <label><small>Fim (opcional)</small><input class="field" type="time" id="fHoraFim"></label>
     </div>
-    <div class="toggle"><span>Notificar<small id="fAlHint">Avisa ${outro} agora e os dois na véspera, às 19h.</small></span><button class="sw-t on" id="fAl" onclick="toggleAl()" aria-label="Notificar"></button></div>
-    <div class="sh-actions"><button class="btn av" id="fSave" onclick="saveAviso()">Salvar aviso</button><button class="btn ghost" onclick="closeForm()">Cancelar</button></div>`;
+    <div class="toggle"><span>Notificar<small id="fAlHint">${form.editId?'Lembra os dois na véspera, às 19h.':`Avisa ${outro} agora e os dois na véspera, às 19h.`}</small></span><button class="sw-t on" id="fAl" onclick="toggleAl()" aria-label="Notificar"></button></div>
+    <div class="sh-actions"><button class="btn av" id="fSave" onclick="saveAviso()">${form.editId?'Salvar alterações':'Salvar aviso'}</button><button class="btn ghost" onclick="closeForm()">Cancelar</button>${form.editId?`<button class="btn del" onclick="delFromForm()">Apagar aviso</button>`:''}</div>`;
 }
 function pickTipo(t){
   form.tipo=t;
@@ -1008,7 +1039,18 @@ async function saveAviso(){
   const row={date_key:ini,date_end:fim,hora:comHora?hv.slice(0,5):null,hora_fim:comHora&&hf?hf.slice(0,5):null,
     dias_semana:m==='semana'?form.dias:null,alerta:form.alerta,tipo:form.tipo,texto:txt.slice(0,200),
     created_by:localStorage.getItem('gj_user')||'?'};
+  const lv=document.getElementById('fLocal').value.trim();row.local=lv?lv.slice(0,200):null;
   if(!sb){toast('Sem conexão agora');return;}
+  if(form.editId){
+    const id=form.editId;delete row.created_by;
+    const btn=document.getElementById('fSave');btn.disabled=true;btn.textContent='Salvando';
+    const{error}=await sb.from('guarda_avisos').update(row).eq('id',id);
+    if(error){console.error(error);toast('Não foi possível salvar');btn.disabled=false;btn.textContent='Salvar alterações';return;}
+    AV=AV.map(a=>a.id===id?{...a,...row}:a);
+    form=null;toast('Aviso atualizado');
+    openDayAny(row.dias_semana?(proxOcorrencia({...row,excecoes:[]},today())||row.date_key):row.date_key);
+    loadAvisos();return;
+  }
   const btn=document.getElementById('fSave');btn.disabled=true;btn.textContent='Salvando';
   const{error}=await sb.from('guarda_avisos').insert(row);
   if(error){console.error(error);toast('Não foi possível salvar');btn.disabled=false;btn.textContent='Salvar aviso';return;}
@@ -1062,7 +1104,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261017101844';
+const BUILD='20261017102600';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
