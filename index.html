@@ -9,7 +9,8 @@
 <meta name="theme-color" content="#0B0B0F" media="(prefers-color-scheme: dark)">
 <title>Guarda Joaquim</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIkd1YXJkYSBKb2FxdWltIiwgInNob3J0X25hbWUiOiAiR3VhcmRhIiwgInN0YXJ0X3VybCI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNGMkYyRjciLCAidGhlbWVfY29sb3IiOiAiI0YyRjJGNyIsICJpY29ucyI6IFtdfQ==">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -199,6 +200,53 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
 .who-card{border-radius:34px;padding:28px 22px 22px;width:100%;max-width:360px;text-align:center;background:var(--glass-sheet)}
 .who-card p{margin-top:6px}
 .who-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+
+:root{--aviso:#0E9F96}
+@media (prefers-color-scheme:dark){:root{--aviso:#40C8C0}}
+.d .dots{position:absolute;bottom:5px;left:0;right:0;display:flex;justify-content:center;gap:3px}
+.d .dots i{width:4px;height:4px;border-radius:50%}
+.d .dots .h{background:var(--accent)}.d .dots .a{background:var(--aviso)}
+.d.today .dots i{background:#fff}
+.pt.av{background:var(--aviso)}
+.av-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.av-head span{font-size:15px;font-weight:600}
+.add-btn{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600;color:var(--aviso);padding:6px 12px 6px 8px;border-radius:99px;background:rgba(14,159,150,.12);transition:transform .25s var(--ease)}
+.add-btn:active{transform:scale(.94)}
+.av-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:.5px solid var(--hairline);width:100%;text-align:left}
+.av-list .av-row:first-child{border-top:0}
+.av-when{width:58px;flex-shrink:0}
+.av-when b{display:block;font-size:15px;font-weight:700;letter-spacing:-.02em}
+.av-when span{font-size:12px;color:var(--text2)}
+.av-main{flex:1;min-width:0}
+.av-main p{font-size:15px;font-weight:500;line-height:1.3;word-wrap:break-word}
+.av-meta{font-size:12px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.tp{display:inline-flex;align-items:center;gap:4px}
+.tp::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--tp)}
+.tp.escola{--tp:#5856D6}.tp.saude{--tp:#FF3B30}.tp.festa{--tp:#FF2D55}.tp.casa{--tp:#34C759}.tp.outro{--tp:var(--text3)}
+.av-empty{font-size:14px;color:var(--text2);padding:6px 0 2px;line-height:1.45}
+.av-more{font-size:13px;color:var(--text2);padding-top:8px}
+.push-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:12px 14px;border-radius:16px;background:var(--hairline);font-size:13px;color:var(--text2);line-height:1.35}
+.push-row b{font-weight:600;display:block;font-size:14px;color:var(--text);margin-bottom:2px}
+.push-row .small-btn{background:var(--aviso);color:#fff}
+.sh-avisos{margin-top:12px}
+.x{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--text3);flex-shrink:0}
+.x:active{background:var(--hairline)}
+.f-label{font-size:13px;font-weight:600;color:var(--text2);margin:16px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;background:var(--hairline);transition:background .2s,color .2s}
+.chip.on{background:var(--text);color:var(--bg)}
+.field{display:block;width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--hairline);border:0;border-radius:14px;padding:12px 14px;min-height:46px;outline:none;-webkit-appearance:none;appearance:none}
+.field:focus{box-shadow:0 0 0 2px var(--aviso)}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.f-row small{display:block;font-size:12px;color:var(--text2);margin:0 0 6px 4px}
+.toggle{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:15px}
+.sw-t{width:51px;height:31px;border-radius:99px;background:var(--hairline);position:relative;transition:background .3s;flex-shrink:0}
+.sw-t::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .35s var(--ease)}
+.sw-t.on{background:var(--ok)}.sw-t.on::after{transform:translateX(20px)}
+.btn.av{background:var(--aviso);color:#fff}
+.btn.av-ghost{background:rgba(14,159,150,.12);color:var(--aviso)}
+.btn:disabled{opacity:.5}
+.sheet{max-height:calc(100dvh - env(safe-area-inset-top) - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
@@ -228,7 +276,7 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
   <button data-tab="alt" onclick="go('alt')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7"/></svg>Trocas<span class="badge" id="altBadge" style="display:none"></span></button>
 </nav>
 
-<div class="scrim" id="scrim" onclick="editing=null;render()"></div>
+<div class="scrim" id="scrim" onclick="editing=null;form=null;render()"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast glass" id="toast"></div>
 <div class="who" id="who">
@@ -456,6 +504,7 @@ async function initFirebase(){
     localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
     localStorage.setItem(lsKey+'_c',JSON.stringify(changes));
     syncState='online';render();
+    loadAvisos();
 
     // Subscribe to realtime changes
     subscription=sb.channel(`guarda_${year}`)
@@ -469,6 +518,8 @@ async function initFirebase(){
         localStorage.setItem(lsKey+'_c',JSON.stringify(changes));
         syncState='online';render();
       })
+      
+      .on('postgres_changes',{event:'*',schema:'public',table:'guarda_avisos'},()=>loadAvisos())
       .subscribe((status)=>{
         if(status==='SUBSCRIBED'){syncState='online';render();}
         else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){syncState='offline';render();}
@@ -516,6 +567,8 @@ const whoName=k=>schedule[k]===S?'Ambos':schedule[k];
 const DL=['D','S','T','Q','Q','S','S'];
 const DFULL=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const IC={
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   left:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
   right:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>'
 };
@@ -526,7 +579,7 @@ function renderSync(){
   el.className='sync '+syncState;
   el.querySelector('.sync-label').textContent=syncState==='online'?'Ao vivo':syncState==='loading'?'Conectando':'Offline';
 }
-function setUser(u){localStorage.setItem('gj_user',u);document.getElementById('who').classList.remove('open');}
+function setUser(u){localStorage.setItem('gj_user',u);document.getElementById('who').classList.remove('open');checkPush();}
 
 function getTotals(){
   let r=0,e=0,s=0;for(const[k,v]of Object.entries(schedule)){if(inR(k)){v===R?r++:v===E?e++:s++;}}
@@ -562,7 +615,7 @@ function renderCal(){
   const pR=t.total?t.r/t.total*100:0,pE=t.total?t.e/t.total*100:0,pS=t.total?t.s/t.total*100:0;
   const diff=Math.abs(t.r-t.e);
   const delta=n=>n?`<em class="${n>0?'up':'down'}">${n>0?'+':''}${n} com trocas</em>`:'';
-  let h=`<section class="glass card">
+  let h=renderAvisosCard()+`<section class="glass card">
     <div class="bal-head"><span>Balanço de ${year}</span><span class="muted">${t.total} dias</span></div>
     <div class="bal-nums">
       <div class="bal mae"><b>${t.r}</b><span>Raquel · ${Math.round(pR)}%</span>${delta(t.rD)}</div>
@@ -590,10 +643,10 @@ function renderCal(){
   for(let d=1;d<=dim(year,month);d++){
     const k=dk(year,month,d);
     if(!inR(k)){h+=`<span class="d off">${d}</span>`;continue;}
-    h+=`<button class="d ${who(k)}${k===td?' today':''}${editing===k?' sel':''}" onclick="openDay('${k}')">${d}${changes[k]?'<i class="chg"></i>':''}${HOL[k]?'<i class="hol"></i>':''}</button>`;
+    h+=`<button class="d ${who(k)}${k===td?' today':''}${editing===k?' sel':''}" onclick="openDay('${k}')">${d}${changes[k]?'<i class="chg"></i>':''}${dotsFor(k)}</button>`;
   }
   h+=`</div>
-    <div class="legend"><span><i class="sw mae"></i>Raquel</span><span><i class="sw pai"></i>Eduardo</span><span><i class="pt hol"></i>Feriado</span><span><i class="pt chg"></i>Trocado</span></div>
+    <div class="legend"><span><i class="sw mae"></i>Raquel</span><span><i class="sw pai"></i>Eduardo</span><span><i class="pt hol"></i>Feriado</span><span><i class="pt av"></i>Aviso</span><span><i class="pt chg"></i>Trocado</span></div>
   </section>`;
 
   const par=year%2===0?'Raquel':'Eduardo';
@@ -665,17 +718,25 @@ function renderAlt(){
 // ===== PAINEL DO DIA =====
 function renderSheet(){
   const sh=document.getElementById('sheet'),sc=document.getElementById('scrim');
-  if(!editing||!inR(editing)){sh.classList.remove('open');sc.classList.remove('open');return;}
+  if(form){
+    if(sh.dataset.mode!=='form'){sh.dataset.mode='form';sh.innerHTML=formHTML();sh.scrollTop=0;}
+    requestAnimationFrame(()=>{sh.classList.add('open');sc.classList.add('open');});
+    return;
+  }
+  if(!editing||!inR(editing)){sh.classList.remove('open');sc.classList.remove('open');sh.dataset.mode='';return;}
+  sh.dataset.mode='dia';
   const k=editing,dt=new Date(k+'T12:00:00'),cur=schedule[k],other=cur===R?E:R;
   sh.innerHTML=`<div class="grab"></div>
     <div class="sh-head"><div><p class="muted">${DFULL[dt.getDay()]}</p><h3>${dt.getDate()} de ${MO[dt.getMonth()].toLowerCase()}</h3></div><span class="tag ${who(k)}">${whoName(k)}</span></div>
     ${HOL[k]?`<p class="sh-hol">${clean(HOL[k].name)}</p>`:''}
     <p class="sh-note">${clean(NOTES[k])||'Regime semanal'}</p>
     ${changes[k]?`<p class="sh-chg">${changes[k].by==='Acordo'?'Troca acordada entre os dois':'Trocado'+(changes[k].by&&changes[k].by!=='?'?' por '+changes[k].by:'')}. Pelo acordo seria com ${changes[k].from}.</p>`:''}
+    ${avisosDo(k).length?`<div class="sh-avisos av-list">${avisosDo(k).map(a=>avRow(a,true)).join('')}</div>`:''}
     <div class="sh-actions">
       ${cur===S
         ?`<div class="two"><button class="btn mae" onclick="setDay('${k}','${R}')">Raquel</button><button class="btn pai" onclick="setDay('${k}','${E}')">Eduardo</button></div>`
         :`<button class="btn ${other===R?'mae':'pai'}" onclick="swap('${k}')">Passar para ${other}</button>`}
+      <button class="btn av-ghost" onclick="openForm('${k}')">Novo aviso neste dia</button>
       ${changes[k]?`<button class="btn ghost" onclick="undo('${k}');editing=null;render()">Voltar ao acordo</button>`:''}
       <button class="btn ghost" onclick="editing=null;render()">Fechar</button>
     </div>`;
@@ -694,7 +755,7 @@ function render(){
 // ===== SWIPE ENTRE MESES =====
 let tx=0,ty=0,tOn=false;
 document.addEventListener('touchstart',e=>{
-  if(tab!=='cal'||editing||!e.target.closest('#calcard'))return;
+  if(tab!=='cal'||editing||form||!e.target.closest('#calcard'))return;
   tOn=true;tx=e.touches[0].clientX;ty=e.touches[0].clientY;
 },{passive:true});
 document.addEventListener('touchend',e=>{
@@ -704,12 +765,179 @@ document.addEventListener('touchend',e=>{
   if(dx<0)nextMonth();else if(!(year<=2026&&month<=getMinMonth()))prevMonth();
 },{passive:true});
 
+// ===== AVISOS =====
+const TIPOS={escola:'Escola',saude:'Saúde',festa:'Festa',casa:'Casa',outro:'Outro'};
+const EXEMPLO={escola:'Ex.: ir de roupa branca',saude:'Ex.: pediatra, Dra. Ana',festa:'Ex.: aniversário do Pedro',casa:'Ex.: férias da Amanda',outro:'Ex.: buscar mais cedo'};
+const avEnd=a=>a.date_end||a.date_key;
+const avisosDo=k=>AV.filter(a=>a.date_key<=k&&avEnd(a)>=k);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dmy=k=>`${parseInt(k.slice(8))}/${parseInt(k.slice(5,7))}`;
+function addDays(k,n){const d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return dk(d.getFullYear(),d.getMonth(),d.getDate());}
+function dotsFor(k){const h=HOL[k],a=avisosDo(k).length;return (h||a)?`<span class="dots">${h?'<i class="h"></i>':''}${a?'<i class="a"></i>':''}</span>`:'';}
+
+async function loadAvisos(){
+  if(!sb)return;
+  const{data,error}=await sb.from('guarda_avisos').select('*').order('date_key').order('hora',{ascending:true,nullsFirst:true});
+  if(error){console.error(error);return;}
+  AV=data||[];
+  try{localStorage.setItem('gj_av',JSON.stringify(AV))}catch(e){}
+  render();
+}
+
+function avRow(a,inSheet){
+  const per=avEnd(a)!==a.date_key;
+  const meta=[`<span class="tp ${esc(a.tipo||'outro')}">${TIPOS[a.tipo]||'Outro'}</span>`];
+  if(per)meta.push(`${dmy(a.date_key)} a ${dmy(avEnd(a))}`);else if(a.hora)meta.push(esc(a.hora));
+  meta.push('por '+esc(a.created_by));
+  const main=`<div class="av-main"><p>${esc(a.texto)}</p><div class="av-meta">${meta.join('<span>·</span>')}</div></div>`;
+  if(inSheet)return `<div class="av-row">${main}<button class="x" onclick="deleteAviso(${a.id})" aria-label="Apagar aviso">${IC.x}</button></div>`;
+  const td=today(),amanha=addDays(td,1);
+  let b,sp;
+  if(a.date_key<td){b='Agora';sp='até '+dmy(avEnd(a));}
+  else{
+    b=`${parseInt(a.date_key.slice(8))} ${MO[parseInt(a.date_key.slice(5,7))-1].slice(0,3).toLowerCase()}`;
+    sp=a.date_key===td?'hoje':a.date_key===amanha?'amanhã':DFULL[new Date(a.date_key+'T12:00:00').getDay()].toLowerCase();
+  }
+  const alvo=a.date_key<td?td:a.date_key;
+  return `<button class="av-row" onclick="openDayAny('${alvo}')"><div class="av-when"><b>${b}</b><span>${sp}</span></div>${main}</button>`;
+}
+
+function renderAvisosCard(){
+  const td=today();
+  const up=AV.filter(a=>avEnd(a)>=td);
+  const outro=(localStorage.getItem('gj_user')==='Raquel')?'o Eduardo':'a Raquel';
+  let h=`<section class="glass card"><div class="av-head"><span>Próximos avisos</span><button class="add-btn" onclick="openForm()">${IC.plus}Novo</button></div>`;
+  h+=up.length?`<div class="av-list">${up.slice(0,6).map(a=>avRow(a,false)).join('')}</div>${up.length>6?`<p class="av-more">E mais ${up.length-6} no calendário.</p>`:''}`
+    :`<p class="av-empty">Nada marcado. Use para escola, consultas, aniversários de amigos ou períodos como férias da Amanda.</p>`;
+  if(pushState==='off')h+=`<div class="push-row"><div><b>Receber notificações</b>Quando ${outro} deixar um aviso e na véspera, às 19h.</div><button class="small-btn" onclick="enablePush(this)">Ativar</button></div>`;
+  else if(pushState==='install')h+=`<div class="push-row"><div><b>Notificações</b>Abra o app pelo ícone da tela de início para poder ativar.</div></div>`;
+  else if(pushState==='denied')h+=`<div class="push-row"><div><b>Notificações bloqueadas</b>Libere em Ajustes › Notificações › Joaquim.</div></div>`;
+  else if(pushState==='unsupported')h+=`<div class="push-row"><div><b>Notificações</b>Precisa do iOS 16.4 ou mais novo.</div></div>`;
+  return h+'</section>';
+}
+
+function openDayAny(k){
+  const y=parseInt(k.slice(0,4)),m=parseInt(k.slice(5,7))-1;
+  if(y!==year)loadYear(y,m);else month=m;
+  form=null;editing=k;tab='cal';render();
+}
+function openForm(k){form={date_key:k||today(),periodo:false,tipo:'outro'};editing=null;render();}
+function closeForm(){form=null;render();}
+function formHTML(){
+  return `<div class="grab"></div>
+    <div class="sh-head"><h3>Novo aviso</h3><button class="x" onclick="closeForm()" aria-label="Fechar">${IC.x}</button></div>
+    <p class="f-label">Tipo</p>
+    <div class="chips" id="fTipo">${Object.entries(TIPOS).map(([t,v])=>`<button class="chip${t===form.tipo?' on':''}" data-t="${t}" onclick="pickTipo('${t}')">${v}</button>`).join('')}</div>
+    <p class="f-label">O que é</p>
+    <input class="field" id="fTxt" maxlength="200" placeholder="${EXEMPLO[form.tipo]}" enterkeyhint="done" autocomplete="off">
+    <div class="toggle"><span>Vários dias</span><button class="sw-t" id="fPer" onclick="togglePer()" aria-label="Vários dias"></button></div>
+    <div class="f-row">
+      <label><small id="fIniL">Dia</small><input class="field" type="date" id="fIni" value="${form.date_key}"></label>
+      <label id="fHoraW"><small>Horário (opcional)</small><input class="field" type="time" id="fHora"></label>
+      <label id="fFimW" style="display:none"><small>Até</small><input class="field" type="date" id="fFim" value="${addDays(form.date_key,1)}"></label>
+    </div>
+    <div class="sh-actions"><button class="btn av" id="fSave" onclick="saveAviso()">Salvar aviso</button><button class="btn ghost" onclick="closeForm()">Cancelar</button></div>`;
+}
+function pickTipo(t){
+  form.tipo=t;
+  document.querySelectorAll('#fTipo .chip').forEach(c=>c.classList.toggle('on',c.dataset.t===t));
+  document.getElementById('fTxt').placeholder=EXEMPLO[t];
+}
+function togglePer(){
+  form.periodo=!form.periodo;const p=form.periodo;
+  document.getElementById('fPer').classList.toggle('on',p);
+  document.getElementById('fHoraW').style.display=p?'none':'';
+  document.getElementById('fFimW').style.display=p?'':'none';
+  document.getElementById('fIniL').textContent=p?'De':'Dia';
+  const ini=document.getElementById('fIni').value,fim=document.getElementById('fFim');
+  if(p&&ini&&(!fim.value||fim.value<=ini))fim.value=addDays(ini,1);
+}
+async function saveAviso(){
+  const txt=document.getElementById('fTxt').value.trim();
+  const ini=document.getElementById('fIni').value;
+  const per=form.periodo;
+  let fim=per?document.getElementById('fFim').value:null;
+  if(!txt){toast('Escreva o aviso');document.getElementById('fTxt').focus();return;}
+  if(!ini){toast('Escolha o dia');return;}
+  if(per&&!fim){toast('Escolha até quando');return;}
+  if(per&&fim<ini){toast('A data final vem antes da inicial');return;}
+  if(fim===ini)fim=null;
+  const hv=document.getElementById('fHora').value;
+  const row={date_key:ini,date_end:fim,hora:!per&&hv?hv.slice(0,5):null,tipo:form.tipo,texto:txt.slice(0,200),created_by:localStorage.getItem('gj_user')||'?'};
+  if(!sb){toast('Sem conexão agora');return;}
+  const btn=document.getElementById('fSave');btn.disabled=true;btn.textContent='Salvando';
+  const{error}=await sb.from('guarda_avisos').insert(row);
+  if(error){console.error(error);toast('Não foi possível salvar');btn.disabled=false;btn.textContent='Salvar aviso';return;}
+  form=null;toast('Aviso salvo');
+  AV=[...AV,{...row,id:-Date.now()}].sort((a,b)=>a.date_key.localeCompare(b.date_key));
+  render();loadAvisos();
+}
+async function deleteAviso(id){
+  if(!confirm('Apagar este aviso?'))return;
+  AV=AV.filter(a=>a.id!==id);render();
+  if(sb&&id>0){const{error}=await sb.from('guarda_avisos').delete().eq('id',id);if(error){toast('Não foi possível apagar');}}
+  loadAvisos();
+}
+
+// ===== NOTIFICAÇÕES PUSH =====
+const VAPID_PUB='BBI2x9NMyHjsxlFuGRnH6duiBjEdf_bx6f1nU61u0grZ0C_gfKiRsBBjri8sWEhGJrz7vghmeHzeejoogp_brrY';
+const FN_URL=SUPABASE_URL+'/functions/v1/avisos-push';
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent);
+function b64u(s){const p='='.repeat((4-s.length%4)%4);const b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0));}
+async function saveSub(sub){
+  const j=sub.toJSON();
+  if(!sb)return;
+  const{error}=await sb.rpc('save_push_sub',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_user:localStorage.getItem('gj_user')||'?'});
+  if(error)console.error(error);
+}
+async function checkPush(){
+  const ok='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+  if(!ok){pushState=isIOS()&&!isStandalone()?'install':(isStandalone()?'unsupported':'hidden');render();return;}
+  if(Notification.permission==='denied'){pushState='denied';render();return;}
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    pushState=sub?'on':'off';
+    if(sub)saveSub(sub);
+  }catch(e){console.error(e);pushState='hidden';}
+  render();
+}
+async function enablePush(btn){
+  if(btn){btn.disabled=true;btn.textContent='Ativando';}
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){pushState=perm==='denied'?'denied':'off';render();return;}
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});
+    await saveSub(sub);
+    pushState='on';render();toast('Notificações ativadas');
+    fetch(FN_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'teste',endpoint:sub.endpoint})}).catch(()=>{});
+  }catch(e){console.error(e);toast('Não foi possível ativar');if(btn){btn.disabled=false;btn.textContent='Ativar';}}
+}
+
+// Teclado do iPhone: mantém o painel acima do teclado
+if(window.visualViewport){
+  const vv=window.visualViewport;
+  const fix=()=>{const sh=document.getElementById('sheet');const kb=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);
+    if(kb>80){sh.style.bottom=(kb+8)+'px';sh.style.maxHeight=(vv.height-16)+'px';}else{sh.style.bottom='';sh.style.maxHeight='';}};
+  vv.addEventListener('resize',fix);vv.addEventListener('scroll',fix);
+}
+
 // ===== INÍCIO =====
-let slideDir='',lastTab=null;
+let slideDir='',lastTab=null,form=null,pushState='hidden';
+let AV=[];try{AV=JSON.parse(localStorage.getItem('gj_av')||'[]')}catch(e){AV=[]}
 const now=new Date();
 const iy=Math.max(2026,now.getFullYear());
-loadYear(iy,iy===now.getFullYear()?now.getMonth():undefined);
+const qd=new URLSearchParams(location.search).get('d');
+if(qd&&/^\d{4}-\d{2}-\d{2}$/.test(qd)){
+  loadYear(Math.max(2026,parseInt(qd.slice(0,4))),parseInt(qd.slice(5,7))-1);
+  editing=qd;render();
+  history.replaceState(null,'',location.pathname);
+}else loadYear(iy,iy===now.getFullYear()?now.getMonth():undefined);
 if(!localStorage.getItem('gj_user'))document.getElementById('who').classList.add('open');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(()=>checkPush()).catch(e=>{console.error(e);checkPush();});
+else checkPush();
 </script>
 </body>
 </html>
