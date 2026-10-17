@@ -1,0 +1,32 @@
+name: Manter Supabase ativo
+
+# O plano grátis do Supabase pausa o projeto após ~7 dias sem atividade.
+# Esta tarefa consulta o banco a cada 3 dias para isso não acontecer.
+on:
+  schedule:
+    - cron: '17 12 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar o banco
+        env:
+          URL: https://rmllgosztllefrzndutn.supabase.co
+          KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtbGxnb3N6dGxsZWZyem5kdXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NzMyNDksImV4cCI6MjA5MDA0OTI0OX0.HB8iucvgv3--zW28EuW4_RGxNqPXgtFhZWIVM-ajf-Q
+        run: |
+          code=$(curl -s -o resp.txt -w "%{http_code}" "$URL/rest/v1/guarda_changes?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "HTTP $code"; cat resp.txt; echo
+          test "$code" = "200"
+
+      # O GitHub desliga tarefas agendadas após 60 dias sem commits no repositório.
+      # Reativar a própria tarefa evita isso.
+      - name: Manter esta tarefa ligada
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keepalive.yml/enable"
