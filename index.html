@@ -896,8 +896,8 @@ function renderProx7(){
   const td=today(),lim=addDays(td,7),am=addDays(td,1);
   const itens=[];
   for(const a of AV){
-    if(isRec(a)){if(ocorre(a,td))itens.push({a,k:td});}
-    else if(a.date_key<=lim&&avEnd(a)>=td)itens.push({a,k:a.date_key<td?td:a.date_key,ongoing:a.date_key<td});
+    if(isRec(a))continue;
+    if(a.date_key<=lim&&avEnd(a)>=td)itens.push({a,k:a.date_key<td?td:a.date_key,ongoing:a.date_key<td});
   }
   if(!itens.length)return '';
   itens.sort((x,y)=>x.k.localeCompare(y.k)||(x.a.hora||'').localeCompare(y.a.hora||''));
@@ -1061,6 +1061,17 @@ if(window.visualViewport){
   vv.addEventListener('resize',fix);vv.addEventListener('scroll',fix);
 }
 
+// ===== ATUALIZAÇÃO AUTOMÁTICA =====
+const BUILD='20261017101844';
+async function checkVersion(){
+  try{
+    const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
+    const j=await r.json();
+    if(j.build&&j.build!==BUILD&&!form)location.reload();
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkVersion();});
+
 // ===== INÍCIO =====
 let slideDir='',lastTab=null,form=null,pushState='hidden';
 let AV=[];try{AV=JSON.parse(localStorage.getItem('gj_av')||'[]')}catch(e){AV=[]}
@@ -1075,6 +1086,7 @@ if(qd&&/^\d{4}-\d{2}-\d{2}$/.test(qd)){
 if(!localStorage.getItem('gj_user'))document.getElementById('who').classList.add('open');
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(()=>checkPush()).catch(e=>{console.error(e);checkPush();});
 else checkPush();
+checkVersion();
 </script>
 </body>
 </html>
