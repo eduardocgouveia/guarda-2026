@@ -247,6 +247,18 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
 .btn.av-ghost{background:rgba(14,159,150,.12);color:var(--aviso)}
 .btn:disabled{opacity:.5}
 .sheet{max-height:calc(100dvh - env(safe-area-inset-top) - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.prox{border-radius:22px;padding:4px 16px;margin-bottom:14px}
+.prox-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 0;border-top:.5px solid var(--hairline);font-size:15px}
+.prox-row:first-child{border-top:0}
+.prox-row .when{width:68px;flex-shrink:0;font-size:13px;font-weight:600;color:var(--aviso)}
+.prox-row .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.prox-row .t .tp{vertical-align:middle}
+.prox-row .hr{font-size:13px;color:var(--text2);font-variant-numeric:tabular-nums}
+.top-meta{display:flex;align-items:center;gap:10px}
+.bell{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--text2);transition:transform .25s var(--ease),background .2s}
+.bell:active{transform:scale(.88);background:var(--hairline)}
+.bell.on{color:var(--aviso)}
+.bell svg{width:19px;height:19px}
 </style>
 </head>
 <body>
@@ -258,7 +270,7 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
       <h1>Joaquim</h1>
     </div>
     <div class="top-right">
-      <div id="sync" class="sync loading"><span class="dot"></span><span class="sync-label">Conectando</span></div>
+      <div class="top-meta"><button id="bell" class="bell" onclick="bellTap()" aria-label="Notificações" style="display:none"></button><div id="sync" class="sync loading"><span class="dot"></span><span class="sync-label">Conectando</span></div></div>
       <div class="year glass">
         <button id="yearPrev" onclick="changeYear(-1)" aria-label="Ano anterior"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
         <span id="yearLabel"></span>
@@ -574,6 +586,32 @@ const IC={
 };
 function kind(note){note=note||'';return note.includes('fixo')?'fixo':note.includes('Férias')?'férias':note.includes('Troca')?'acordo':'alternado';}
 
+function renderBell(){
+  const el=document.getElementById('bell');if(!el)return;
+  if(pushState==='hidden'){el.style.display='none';return;}
+  el.style.display='';
+  const on=pushState==='on';
+  el.classList.toggle('on',on);
+  el.innerHTML=`<svg viewBox="0 0 24 24" fill="${on?'currentColor':'none'}" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>`;
+}
+async function bellTap(){
+  if(pushState==='off')return enablePush();
+  if(pushState==='on')return testPush();
+  if(pushState==='install')return alert('Para receber notificações no iPhone, abra o app pelo ícone da tela de início (Safari › Compartilhar › Adicionar à Tela de Início).');
+  if(pushState==='denied')return alert('As notificações estão bloqueadas. Libere em Ajustes › Notificações › Joaquim.');
+  if(pushState==='unsupported')return alert('Notificações precisam do iOS 16.4 ou mais novo.');
+}
+async function testPush(){
+  try{
+    const reg=await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
+    if(!sub){pushState='off';render();return enablePush();}
+    await saveSub(sub);
+    toast('Enviando teste');
+    const r=await fetch(FN_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'teste',endpoint:sub.endpoint})});
+    const j=await r.json().catch(()=>({}));
+    if(!(j.ok>0))toast('O teste falhou. Me avise.');
+  }catch(e){console.error(e);toast('O teste falhou. Me avise.');}
+}
 function renderSync(){
   const el=document.getElementById('sync');
   el.className='sync '+syncState;
@@ -615,7 +653,7 @@ function renderCal(){
   const pR=t.total?t.r/t.total*100:0,pE=t.total?t.e/t.total*100:0,pS=t.total?t.s/t.total*100:0;
   const diff=Math.abs(t.r-t.e);
   const delta=n=>n?`<em class="${n>0?'up':'down'}">${n>0?'+':''}${n} com trocas</em>`:'';
-  let h=renderAvisosCard()+`<section class="glass card">
+  const bal=`<section class="glass card">
     <div class="bal-head"><span>Balanço de ${year}</span><span class="muted">${t.total} dias</span></div>
     <div class="bal-nums">
       <div class="bal mae"><b>${t.r}</b><span>Raquel · ${Math.round(pR)}%</span>${delta(t.rD)}</div>
@@ -627,7 +665,7 @@ function renderCal(){
 
   const anim=slideDir?' slide-'+slideDir:'';slideDir='';
   const minDis=year<=2026&&month<=getMinMonth();
-  h+=`<section class="glass card" id="calcard">
+  let h=renderProx7()+`<section class="glass card" id="calcard">
     <div class="cal-top">
       <div><h2>${MO[month]}</h2><p class="muted">${year} · Raquel ${mt.r} · Eduardo ${mt.e}${mt.s?` · Ambos ${mt.s}`:''}</p></div>
       <div class="nav">
@@ -649,6 +687,7 @@ function renderCal(){
     <div class="legend"><span><i class="sw mae"></i>Raquel</span><span><i class="sw pai"></i>Eduardo</span><span><i class="pt hol"></i>Feriado</span><span><i class="pt av"></i>Aviso</span><span><i class="pt chg"></i>Trocado</span></div>
   </section>`;
 
+  h+=bal+renderAvisosCard();
   const par=year%2===0?'Raquel':'Eduardo';
   h+=`<details class="glass card rules"><summary>Regras do acordo${IC.right}</summary><dl>
     <div><dt>Segunda e terça</dt><dd>Raquel</dd></div>
@@ -744,7 +783,7 @@ function renderSheet(){
 }
 
 function render(){
-  renderTabs();renderSync();
+  renderTabs();renderSync();renderBell();
   const app=document.getElementById('app');
   app.innerHTML=tab==='cal'?renderCal():tab==='fer'?renderFer():renderAlt();
   app.classList.toggle('enter',lastTab!==tab);
@@ -805,17 +844,27 @@ function avRow(a,inSheet){
 function renderAvisosCard(){
   const td=today();
   const up=AV.filter(a=>avEnd(a)>=td);
-  const outro=(localStorage.getItem('gj_user')==='Raquel')?'o Eduardo':'a Raquel';
-  let h=`<section class="glass card"><div class="av-head"><span>Próximos avisos</span><button class="add-btn" onclick="openForm()">${IC.plus}Novo</button></div>`;
-  h+=up.length?`<div class="av-list">${up.slice(0,6).map(a=>avRow(a,false)).join('')}</div>${up.length>6?`<p class="av-more">E mais ${up.length-6} no calendário.</p>`:''}`
+  let h=`<section class="glass card"><div class="av-head"><span>Avisos</span><button class="add-btn" onclick="openForm()">${IC.plus}Novo</button></div>`;
+  h+=up.length?`<div class="av-list">${up.map(a=>avRow(a,false)).join('')}</div>`
     :`<p class="av-empty">Nada marcado. Use para escola, consultas, aniversários de amigos ou períodos como férias da Amanda.</p>`;
-  if(pushState==='off')h+=`<div class="push-row"><div><b>Receber notificações</b>Quando ${outro} deixar um aviso e na véspera, às 19h.</div><button class="small-btn" onclick="enablePush(this)">Ativar</button></div>`;
-  else if(pushState==='install')h+=`<div class="push-row"><div><b>Notificações</b>Abra o app pelo ícone da tela de início para poder ativar.</div></div>`;
-  else if(pushState==='denied')h+=`<div class="push-row"><div><b>Notificações bloqueadas</b>Libere em Ajustes › Notificações › Joaquim.</div></div>`;
-  else if(pushState==='unsupported')h+=`<div class="push-row"><div><b>Notificações</b>Precisa do iOS 16.4 ou mais novo.</div></div>`;
   return h+'</section>';
 }
 
+function renderProx7(){
+  const td=today(),lim=addDays(td,7),am=addDays(td,1);
+  const up=AV.filter(a=>a.date_key<=lim&&avEnd(a)>=td);
+  if(!up.length)return '';
+  const rows=up.slice(0,4).map(a=>{
+    let w;
+    if(a.date_key<td)w='Até '+dmy(avEnd(a));
+    else if(a.date_key===td)w='Hoje';
+    else if(a.date_key===am)w='Amanhã';
+    else{const d=new Date(a.date_key+'T12:00:00');w=DA[d.getDay()]+' '+d.getDate();}
+    const alvo=a.date_key<td?td:a.date_key;
+    return `<button class="prox-row" onclick="openDayAny('${alvo}')"><span class="when">${w}</span><span class="t"><span class="tp ${esc(a.tipo||'outro')}"></span> ${esc(a.texto)}</span>${a.hora&&avEnd(a)===a.date_key?`<span class="hr">${esc(a.hora)}</span>`:''}</button>`;
+  }).join('');
+  return `<section class="glass prox">${rows}${up.length>4?`<p class="av-more" style="padding:0 0 10px">E mais ${up.length-4} nesta semana</p>`:''}</section>`;
+}
 function openDayAny(k){
   const y=parseInt(k.slice(0,4)),m=parseInt(k.slice(5,7))-1;
   if(y!==year)loadYear(y,m);else month=m;
@@ -904,7 +953,6 @@ async function checkPush(){
   render();
 }
 async function enablePush(btn){
-  if(btn){btn.disabled=true;btn.textContent='Ativando';}
   try{
     const perm=await Notification.requestPermission();
     if(perm!=='granted'){pushState=perm==='denied'?'denied':'off';render();return;}
@@ -913,7 +961,7 @@ async function enablePush(btn){
     await saveSub(sub);
     pushState='on';render();toast('Notificações ativadas');
     fetch(FN_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({mode:'teste',endpoint:sub.endpoint})}).catch(()=>{});
-  }catch(e){console.error(e);toast('Não foi possível ativar');if(btn){btn.disabled=false;btn.textContent='Ativar';}}
+  }catch(e){console.error(e);toast('Não foi possível ativar');}
 }
 
 // Teclado do iPhone: mantém o painel acima do teclado
