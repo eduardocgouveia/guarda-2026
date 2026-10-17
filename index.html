@@ -280,6 +280,7 @@ input[type=date].field,input[type=time].field{font-size:15px;padding:12px 10px}
 .steps{margin:14px 0 0 0;padding-left:20px;font-size:14px;line-height:1.5;color:var(--text)}
 .steps li{margin-bottom:10px;padding-left:2px}
 .steps .small-btn{margin-left:8px;background:var(--aviso);color:#fff;vertical-align:middle}
+.link-sm{color:var(--aviso);font-weight:600;font-size:13px;padding:0}
 </style>
 </head>
 <body>
@@ -907,16 +908,11 @@ function renderAvisosCard(){
 const ICS_HOST='rmllgosztllefrzndutn.supabase.co/functions/v1/calendario?k=5859f5f4f725ce7a5fd75db2';
 function renderAgendaCard(){
   const webcal='webcal://'+ICS_HOST;
+  const google='https://calendar.google.com/calendar/u/0/r?cid='+encodeURIComponent(webcal);
   return `<section class="glass card"><div class="av-head"><span>Agenda do Joaquim</span></div>
     <p class="av-empty">Coloque a guarda e os avisos no seu calendário, numa agenda separada chamada Joaquim. Ela se atualiza sozinha.</p>
-    <div class="cal-links"><button class="btn ghost" onclick="gcalOpen=!gcalOpen;render()">Google Agenda</button><a class="btn ghost" href="${webcal}">iPhone</a></div>
-    ${gcalOpen?`<ol class="steps">
-      <li>Copie o link da agenda.<button class="small-btn" onclick="copyIcs()">Copiar link</button></li>
-      <li>No computador, abra <b>calendar.google.com</b>.</li>
-      <li>Em <b>Outras agendas</b>, toque em <b>+</b> e depois em <b>Do URL</b>. Cole o link e confirme.</li>
-      <li>No app do Google no celular, se a agenda não aparecer, vá em Configurações › Joaquim e ligue <b>Sincronizar</b>.</li>
-    </ol>
-    <p class="av-more">O Google atualiza a cada algumas horas e não toca alertas de agenda assinada. Os alertas chegam pelo sininho do app.</p>`:''}
+    <div class="cal-links"><a class="btn ghost" href="${google}" target="_blank" rel="noopener">Google Agenda</a><a class="btn ghost" href="${webcal}">iPhone</a></div>
+    <p class="av-more">No Google, se não aparecer "Adicionar agenda", toque em aA › Solicitar site para computador. <button class="link-sm" onclick="copyIcs()">Copiar link</button></p>
   </section>`;
 }
 let gcalOpen=false;
@@ -1130,7 +1126,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261017104544';
+const BUILD='20261017104917';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
