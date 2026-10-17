@@ -395,14 +395,7 @@ function buildBase(y){
   }
 
   // ===== 2026: TROCAS ACORDADAS JUNHO =====
-  if(y===2026){
-    s["2026-06-01"]=E;n["2026-06-01"]="Troca acordada — bloco Corpus Christi (pai)";
-    s["2026-06-02"]=E;n["2026-06-02"]="Troca acordada — bloco Corpus Christi (pai)";
-    s["2026-06-04"]=E;n["2026-06-04"]="Corpus Christi — troca acordada (pai)";
-    s["2026-06-05"]=E;n["2026-06-05"]="Troca acordada — bloco Corpus Christi (pai)";
-    s["2026-06-24"]=R;n["2026-06-24"]="São João — troca acordada (mãe)";
-    s["2026-06-25"]=R;n["2026-06-25"]="Troca acordada — bloco São João (mãe)";
-  }
+  // (trocas acordadas de junho/2026 ficam no histórico de trocas, não no base)
 
   return{s,n,hol};
 }
@@ -457,7 +450,7 @@ async function initFirebase(){
     if(error)throw error;
     if(year!==y0)return;
     changes={};
-    (data||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at};});
+    (data||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
     schedule={...BASE};
     for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
     localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
@@ -469,7 +462,7 @@ async function initFirebase(){
       .on('postgres_changes',{event:'*',schema:'public',table:'guarda_changes'},async()=>{
         const{data:d2}=await sb.from('guarda_changes').select('*').eq('year',year);
         changes={};
-        (d2||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at};});
+        (d2||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
         schedule={...BASE};
         for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
         localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
@@ -497,7 +490,7 @@ async function save(){
   try{
     if(!sb)throw new Error('Supabase indisponível');
     // Build upsert rows from current changes
-    const rows=Object.entries(changes).map(([k,v])=>({year,date_key:k,parent:v.to,note:v.from!==v.to?`de ${v.from} para ${v.to}`:'',changed_by:localStorage.getItem('gj_user')||'?',changed_at:v.at||new Date().toISOString()}));
+    const rows=Object.entries(changes).map(([k,v])=>({year,date_key:k,parent:v.to,note:v.note||'',changed_by:v.by&&v.by!=='?'?v.by:(localStorage.getItem('gj_user')||'?'),changed_at:v.at||new Date().toISOString()}));
     // Delete removed changes for this year, then upsert current
     const changedKeys=Object.keys(changes);
     const{data:existing}=await sb.from('guarda_changes').select('date_key').eq('year',year);
@@ -661,7 +654,7 @@ function renderAlt(){
     const hol=HOL[k],m=MO[parseInt(k.slice(5,7))-1].slice(0,3).toLowerCase();
     h+=`<div class="row">
       <div class="date"><b>${parseInt(k.slice(8))}</b><span>${m}</span></div>
-      <div class="row-main"><p>${v.from} → ${v.to}</p><span class="muted">${hol?clean(hol.name)+' · ':''}${v.by&&v.by!=='?'?'por '+v.by:'sem autor'}</span></div>
+      <div class="row-main"><p>${v.from} → ${v.to}</p><span class="muted">${hol?clean(hol.name)+' · ':v.note?v.note+' · ':''}${v.by==='Acordo'?'acordo entre os dois':v.by&&v.by!=='?'?'por '+v.by:'sem autor'}</span></div>
       <button class="small-btn" onclick="undo('${k}')">Desfazer</button>
     </div>`;
   }
@@ -678,7 +671,7 @@ function renderSheet(){
     <div class="sh-head"><div><p class="muted">${DFULL[dt.getDay()]}</p><h3>${dt.getDate()} de ${MO[dt.getMonth()].toLowerCase()}</h3></div><span class="tag ${who(k)}">${whoName(k)}</span></div>
     ${HOL[k]?`<p class="sh-hol">${clean(HOL[k].name)}</p>`:''}
     <p class="sh-note">${clean(NOTES[k])||'Regime semanal'}</p>
-    ${changes[k]?`<p class="sh-chg">Trocado${changes[k].by&&changes[k].by!=='?'?' por '+changes[k].by:''}. Pelo acordo seria com ${changes[k].from}.</p>`:''}
+    ${changes[k]?`<p class="sh-chg">${changes[k].by==='Acordo'?'Troca acordada entre os dois':'Trocado'+(changes[k].by&&changes[k].by!=='?'?' por '+changes[k].by:'')}. Pelo acordo seria com ${changes[k].from}.</p>`:''}
     <div class="sh-actions">
       ${cur===S
         ?`<div class="two"><button class="btn mae" onclick="setDay('${k}','${R}')">Raquel</button><button class="btn pai" onclick="setDay('${k}','${E}')">Eduardo</button></div>`
