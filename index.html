@@ -275,6 +275,8 @@ input[type=date].field,input[type=time].field{font-size:15px;padding:12px 10px}
 .row-acts{display:flex;gap:2px;flex-shrink:0}
 .loc{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:13px;font-weight:500;color:var(--aviso);text-decoration:none}
 .btn.del{background:none;color:var(--bad);height:44px}
+.cal-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.cal-links .btn{display:grid;place-items:center;text-decoration:none;font-size:15px;height:48px}
 </style>
 </head>
 <body>
@@ -705,7 +707,7 @@ function renderCal(){
     <div class="legend"><span><i class="sw mae"></i>Raquel</span><span><i class="sw pai"></i>Eduardo</span><span><i class="pt hol"></i>Feriado</span><span><i class="pt av"></i>Aviso</span><span><i class="pt chg"></i>Trocado</span></div>
   </section>`;
 
-  h+=bal+renderAvisosCard();
+  h+=bal+renderAvisosCard()+renderAgendaCard();
   const par=year%2===0?'Raquel':'Eduardo';
   h+=`<details class="glass card rules"><summary>Regras do acordo${IC.right}</summary><dl>
     <div><dt>Segunda e terça</dt><dd>Raquel</dd></div>
@@ -899,6 +901,15 @@ function renderAvisosCard(){
   return h+'</section>';
 }
 
+const ICS_HOST='rmllgosztllefrzndutn.supabase.co/functions/v1/calendario?k=5859f5f4f725ce7a5fd75db2';
+function renderAgendaCard(){
+  const webcal='webcal://'+ICS_HOST;
+  const google='https://calendar.google.com/calendar/r?cid='+encodeURIComponent(webcal);
+  return `<section class="glass card"><div class="av-head"><span>Agenda do Joaquim</span></div>
+    <p class="av-empty">Assine uma vez e a guarda e os avisos aparecem no seu calendário, numa agenda separada chamada Joaquim. Só os avisos pontuais têm alerta.</p>
+    <div class="cal-links"><a class="btn ghost" href="${google}" target="_blank" rel="noopener">Google Agenda</a><a class="btn ghost" href="${webcal}">iPhone</a></div>
+  </section>`;
+}
 function renderProx7(){
   const td=today(),lim=addDays(td,7),am=addDays(td,1);
   const itens=[];
@@ -1104,7 +1115,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261017102600';
+const BUILD='20261017103806';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
