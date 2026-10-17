@@ -259,6 +259,19 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
 .bell:active{transform:scale(.88);background:var(--hairline)}
 .bell.on{color:var(--aviso)}
 .bell svg{width:19px;height:19px}
+.av-sub{font-size:13px;font-weight:600;color:var(--text2);margin:14px 0 2px}
+.av-row>.av-main+.x{margin-top:-2px}
+.del-opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.small-btn.danger{background:rgba(255,59,48,.12);color:var(--bad)}
+.tp.atividade{--tp:#FF9500}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--hairline);border-radius:12px;padding:3px;gap:2px}
+.seg button{padding:9px 4px;border-radius:9px;font-size:14px;font-weight:500;color:var(--text2);transition:background .25s,color .25s}
+.seg button.on{background:var(--glass-strong);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.chip.day{width:40px;padding:8px 0;text-align:center}
+.toggle small{display:block;font-size:12px;color:var(--text2);margin-top:2px;padding-right:12px}
+.f-row label{min-width:0;display:block}
+.field{min-width:0;max-width:100%}
+input[type=date].field,input[type=time].field{font-size:15px;padding:12px 10px}
 </style>
 </head>
 <body>
@@ -288,7 +301,7 @@ h3{font-size:21px;font-weight:700;letter-spacing:-.025em}
   <button data-tab="alt" onclick="go('alt')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7"/></svg>Trocas<span class="badge" id="altBadge" style="display:none"></span></button>
 </nav>
 
-<div class="scrim" id="scrim" onclick="editing=null;form=null;render()"></div>
+<div class="scrim" id="scrim" onclick="editing=null;form=null;pendDel=null;render()"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast glass" id="toast"></div>
 <div class="who" id="who">
@@ -639,7 +652,7 @@ function renderTabs(){
   bd.textContent=cc;bd.style.display=cc?'':'none';
 }
 function go(t){if(t===tab)return;tab=t;editing=null;render();window.scrollTo({top:0,behavior:'smooth'});}
-function openDay(k){editing=editing===k?null:k;render();}
+function openDay(k){pendDel=null;editing=editing===k?null:k;render();}
 function setDay(k,p){
   schedule[k]=p;
   if(p!==BASE[k])changes[k]={from:BASE[k],to:p,by:localStorage.getItem('gj_user')||'?',at:new Date().toISOString()};
@@ -770,7 +783,7 @@ function renderSheet(){
     ${HOL[k]?`<p class="sh-hol">${clean(HOL[k].name)}</p>`:''}
     <p class="sh-note">${clean(NOTES[k])||'Regime semanal'}</p>
     ${changes[k]?`<p class="sh-chg">${changes[k].by==='Acordo'?'Troca acordada entre os dois':'Trocado'+(changes[k].by&&changes[k].by!=='?'?' por '+changes[k].by:'')}. Pelo acordo seria com ${changes[k].from}.</p>`:''}
-    ${avisosDo(k).length?`<div class="sh-avisos av-list">${avisosDo(k).map(a=>avRow(a,true)).join('')}</div>`:''}
+    ${avisosDo(k).length?`<div class="sh-avisos av-list">${avisosDo(k).map(a=>avRow(a,true,k)).join('')}</div>`:''}
     <div class="sh-actions">
       ${cur===S
         ?`<div class="two"><button class="btn mae" onclick="setDay('${k}','${R}')">Raquel</button><button class="btn pai" onclick="setDay('${k}','${E}')">Eduardo</button></div>`
@@ -805,14 +818,28 @@ document.addEventListener('touchend',e=>{
 },{passive:true});
 
 // ===== AVISOS =====
-const TIPOS={escola:'Escola',saude:'Saúde',festa:'Festa',casa:'Casa',outro:'Outro'};
-const EXEMPLO={escola:'Ex.: ir de roupa branca',saude:'Ex.: pediatra, Dra. Ana',festa:'Ex.: aniversário do Pedro',casa:'Ex.: férias da Amanda',outro:'Ex.: buscar mais cedo'};
+const TIPOS={escola:'Escola',saude:'Saúde',festa:'Festa',atividade:'Atividade',casa:'Casa',outro:'Outro'};
+const EXEMPLO={escola:'Ex.: ir de roupa branca',saude:'Ex.: pediatra, Dra. Ana',festa:'Ex.: aniversário do Pedro',atividade:'Ex.: natação',casa:'Ex.: férias da Amanda',outro:'Ex.: buscar mais cedo'};
+const DSHORT=['dom','seg','ter','qua','qui','sex','sáb'];
 const avEnd=a=>a.date_end||a.date_key;
-const avisosDo=k=>AV.filter(a=>a.date_key<=k&&avEnd(a)>=k);
+const isRec=a=>Array.isArray(a.dias_semana)&&a.dias_semana.length>0;
+const dowK=k=>new Date(k+'T12:00:00').getDay();
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dmy=k=>`${parseInt(k.slice(8))}/${parseInt(k.slice(5,7))}`;
+const horas=a=>a.hora?(a.hora_fim?`${a.hora}–${a.hora_fim}`:a.hora):'';
 function addDays(k,n){const d=new Date(k+'T12:00:00');d.setDate(d.getDate()+n);return dk(d.getFullYear(),d.getMonth(),d.getDate());}
-function dotsFor(k){const h=HOL[k],a=avisosDo(k).length;return (h||a)?`<span class="dots">${h?'<i class="h"></i>':''}${a?'<i class="a"></i>':''}</span>`:'';}
+function diasTxt(ds){const n=[...ds].sort().map(d=>DSHORT[d]);return n.length>1?n.slice(0,-1).join(', ')+' e '+n[n.length-1]:n[0];}
+function ocorre(a,k){
+  if(k<a.date_key||k>avEnd(a))return false;
+  if(!isRec(a))return true;
+  return a.dias_semana.includes(dowK(k))&&!(a.excecoes||[]).includes(k);
+}
+const avisosDo=k=>AV.filter(a=>ocorre(a,k)).sort((x,y)=>(x.hora||'').localeCompare(y.hora||''));
+function proxOcorrencia(a,from){for(let i=0;i<400;i++){const k=addDays(from,i);if(k>avEnd(a))return null;if(ocorre(a,k))return k;}return null;}
+function dotsFor(k){
+  const h=HOL[k],a=AV.some(x=>!isRec(x)&&ocorre(x,k));
+  return (h||a)?`<span class="dots">${h?'<i class="h"></i>':''}${a?'<i class="a"></i>':''}</span>`:'';
+}
 
 async function loadAvisos(){
   if(!sb)return;
@@ -823,68 +850,122 @@ async function loadAvisos(){
   render();
 }
 
-function avRow(a,inSheet){
-  const per=avEnd(a)!==a.date_key;
+function avRow(a,inSheet,dayK){
+  const per=!isRec(a)&&avEnd(a)!==a.date_key,h=horas(a);
   const meta=[`<span class="tp ${esc(a.tipo||'outro')}">${TIPOS[a.tipo]||'Outro'}</span>`];
-  if(per)meta.push(`${dmy(a.date_key)} a ${dmy(avEnd(a))}`);else if(a.hora)meta.push(esc(a.hora));
+  if(isRec(a))meta.push(`até ${dmy(avEnd(a))}`);
+  else if(per)meta.push(`${dmy(a.date_key)} a ${dmy(avEnd(a))}`);
+  if(h)meta.push(esc(h));
   meta.push('por '+esc(a.created_by));
-  const main=`<div class="av-main"><p>${esc(a.texto)}</p><div class="av-meta">${meta.join('<span>·</span>')}</div></div>`;
-  if(inSheet)return `<div class="av-row">${main}<button class="x" onclick="deleteAviso(${a.id})" aria-label="Apagar aviso">${IC.x}</button></div>`;
+  if(a.alerta===false)meta.push('sem alerta');
+  const main=`<div class="av-main"><p>${esc(a.texto)}</p><div class="av-meta">${meta.join('<span>·</span>')}</div>`;
+  if(inSheet){
+    const pend=pendDel&&pendDel.id===a.id;
+    return `<div class="av-row">${main}${pend?`<div class="del-opts">
+        <button class="small-btn" onclick="skipDay(${a.id},'${dayK}')">Só neste dia</button>
+        <button class="small-btn danger" onclick="removeAviso(${a.id})">Toda a série</button>
+        <button class="small-btn" onclick="pendDel=null;render()">Manter</button></div>`:''}</div>
+      ${pend?'':`<button class="x" onclick="askDel(${a.id})" aria-label="Apagar aviso">${IC.x}</button>`}</div>`;
+  }
   const td=today(),amanha=addDays(td,1);
-  let b,sp;
-  if(a.date_key<td){b='Agora';sp='até '+dmy(avEnd(a));}
+  let b,sp,alvo;
+  if(isRec(a)){b='Semanal';sp=diasTxt(a.dias_semana);alvo=proxOcorrencia(a,td)||a.date_key;}
+  else if(a.date_key<td){b='Agora';sp='até '+dmy(avEnd(a));alvo=td;}
   else{
     b=`${parseInt(a.date_key.slice(8))} ${MO[parseInt(a.date_key.slice(5,7))-1].slice(0,3).toLowerCase()}`;
-    sp=a.date_key===td?'hoje':a.date_key===amanha?'amanhã':DFULL[new Date(a.date_key+'T12:00:00').getDay()].toLowerCase();
+    sp=a.date_key===td?'hoje':a.date_key===amanha?'amanhã':DFULL[dowK(a.date_key)].toLowerCase();
+    alvo=a.date_key;
   }
-  const alvo=a.date_key<td?td:a.date_key;
-  return `<button class="av-row" onclick="openDayAny('${alvo}')"><div class="av-when"><b>${b}</b><span>${sp}</span></div>${main}</button>`;
+  return `<button class="av-row" onclick="openDayAny('${alvo}')"><div class="av-when"><b>${b}</b><span>${sp}</span></div>${main}</div></button>`;
 }
 
 function renderAvisosCard(){
   const td=today();
-  const up=AV.filter(a=>avEnd(a)>=td);
+  const byDate=(x,y)=>x.date_key.localeCompare(y.date_key)||(x.hora||'').localeCompare(y.hora||'');
+  const unicos=AV.filter(a=>!isRec(a)&&avEnd(a)>=td).sort(byDate);
+  const semanais=AV.filter(a=>isRec(a)&&avEnd(a)>=td).sort((x,y)=>Math.min(...x.dias_semana)-Math.min(...y.dias_semana)||(x.hora||'').localeCompare(y.hora||''));
   let h=`<section class="glass card"><div class="av-head"><span>Avisos</span><button class="add-btn" onclick="openForm()">${IC.plus}Novo</button></div>`;
-  h+=up.length?`<div class="av-list">${up.map(a=>avRow(a,false)).join('')}</div>`
-    :`<p class="av-empty">Nada marcado. Use para escola, consultas, aniversários de amigos ou períodos como férias da Amanda.</p>`;
+  if(!unicos.length&&!semanais.length)
+    h+=`<p class="av-empty">Nada marcado. Use para escola, consultas, aniversários de amigos, atividades da semana ou períodos como férias da Amanda.</p>`;
+  if(unicos.length)h+=`<div class="av-list">${unicos.map(a=>avRow(a,false)).join('')}</div>`;
+  if(semanais.length)h+=`<p class="av-sub">Toda semana</p><div class="av-list">${semanais.map(a=>avRow(a,false)).join('')}</div>`;
   return h+'</section>';
 }
 
 function renderProx7(){
   const td=today(),lim=addDays(td,7),am=addDays(td,1);
-  const up=AV.filter(a=>a.date_key<=lim&&avEnd(a)>=td);
-  if(!up.length)return '';
-  const rows=up.slice(0,4).map(a=>{
+  const itens=[];
+  for(const a of AV){
+    if(isRec(a)){if(ocorre(a,td))itens.push({a,k:td});}
+    else if(a.date_key<=lim&&avEnd(a)>=td)itens.push({a,k:a.date_key<td?td:a.date_key,ongoing:a.date_key<td});
+  }
+  if(!itens.length)return '';
+  itens.sort((x,y)=>x.k.localeCompare(y.k)||(x.a.hora||'').localeCompare(y.a.hora||''));
+  const rows=itens.slice(0,5).map(({a,k,ongoing})=>{
     let w;
-    if(a.date_key<td)w='Até '+dmy(avEnd(a));
-    else if(a.date_key===td)w='Hoje';
-    else if(a.date_key===am)w='Amanhã';
-    else{const d=new Date(a.date_key+'T12:00:00');w=DA[d.getDay()]+' '+d.getDate();}
-    const alvo=a.date_key<td?td:a.date_key;
-    return `<button class="prox-row" onclick="openDayAny('${alvo}')"><span class="when">${w}</span><span class="t"><span class="tp ${esc(a.tipo||'outro')}"></span> ${esc(a.texto)}</span>${a.hora&&avEnd(a)===a.date_key?`<span class="hr">${esc(a.hora)}</span>`:''}</button>`;
+    if(ongoing)w='Até '+dmy(avEnd(a));
+    else if(k===td)w='Hoje';
+    else if(k===am)w='Amanhã';
+    else{const d=new Date(k+'T12:00:00');w=DA[d.getDay()]+' '+d.getDate();}
+    const h=avEnd(a)===a.date_key||isRec(a)?horas(a):'';
+    return `<button class="prox-row" onclick="openDayAny('${k}')"><span class="when">${w}</span><span class="t"><span class="tp ${esc(a.tipo||'outro')}"></span> ${esc(a.texto)}</span>${h?`<span class="hr">${esc(h)}</span>`:''}</button>`;
   }).join('');
-  return `<section class="glass prox">${rows}${up.length>4?`<p class="av-more" style="padding:0 0 10px">E mais ${up.length-4} nesta semana</p>`:''}</section>`;
+  return `<section class="glass prox">${rows}${itens.length>5?`<p class="av-more" style="padding:0 0 10px">E mais ${itens.length-5} nesta semana</p>`:''}</section>`;
 }
+
 function openDayAny(k){
   const y=parseInt(k.slice(0,4)),m=parseInt(k.slice(5,7))-1;
   if(y!==year)loadYear(y,m);else month=m;
-  form=null;editing=k;tab='cal';render();
+  form=null;pendDel=null;editing=k;tab='cal';render();
 }
-function openForm(k){form={date_key:k||today(),periodo:false,tipo:'outro'};editing=null;render();}
+
+// ----- apagar -----
+let pendDel=null;
+function askDel(id){
+  const a=AV.find(x=>x.id===id);if(!a)return;
+  if(!isRec(a)){if(confirm('Apagar este aviso?'))removeAviso(id);return;}
+  pendDel={id};render();
+}
+async function skipDay(id,k){
+  const a=AV.find(x=>x.id===id);if(!a)return;
+  const ex=[...new Set([...(a.excecoes||[]),k])];
+  a.excecoes=ex;pendDel=null;render();
+  if(sb&&id>0){const{error}=await sb.from('guarda_avisos').update({excecoes:ex}).eq('id',id);if(error){console.error(error);toast('Não foi possível cancelar');}else toast('Cancelado só neste dia');}
+  loadAvisos();
+}
+async function removeAviso(id){
+  pendDel=null;AV=AV.filter(a=>a.id!==id);render();
+  if(sb&&id>0){const{error}=await sb.from('guarda_avisos').delete().eq('id',id);if(error)toast('Não foi possível apagar');}
+  loadAvisos();
+}
+
+// ----- formulário -----
+function openForm(k){form={date_key:k||today(),modo:'um',tipo:'outro',dias:[],alerta:true};editing=null;pendDel=null;render();}
 function closeForm(){form=null;render();}
 function formHTML(){
+  const outro=(localStorage.getItem('gj_user')==='Raquel')?'o Eduardo':'a Raquel';
   return `<div class="grab"></div>
     <div class="sh-head"><h3>Novo aviso</h3><button class="x" onclick="closeForm()" aria-label="Fechar">${IC.x}</button></div>
     <p class="f-label">Tipo</p>
     <div class="chips" id="fTipo">${Object.entries(TIPOS).map(([t,v])=>`<button class="chip${t===form.tipo?' on':''}" data-t="${t}" onclick="pickTipo('${t}')">${v}</button>`).join('')}</div>
     <p class="f-label">O que é</p>
     <input class="field" id="fTxt" maxlength="200" placeholder="${EXEMPLO[form.tipo]}" enterkeyhint="done" autocomplete="off">
-    <div class="toggle"><span>Vários dias</span><button class="sw-t" id="fPer" onclick="togglePer()" aria-label="Vários dias"></button></div>
+    <p class="f-label">Quando</p>
+    <div class="seg" id="fModo">
+      <button data-m="um" class="on" onclick="setModo('um')">Um dia</button>
+      <button data-m="varios" onclick="setModo('varios')">Vários dias</button>
+      <button data-m="semana" onclick="setModo('semana')">Toda semana</button>
+    </div>
+    <div id="fDiasW" style="display:none"><div class="chips days" id="fDias" style="margin-top:12px">${['D','S','T','Q','Q','S','S'].map((l,i)=>`<button class="chip day" data-d="${i}" onclick="toggleDia(${i})" aria-label="${DFULL[i]}">${l}</button>`).join('')}</div></div>
     <div class="f-row">
       <label><small id="fIniL">Dia</small><input class="field" type="date" id="fIni" value="${form.date_key}"></label>
-      <label id="fHoraW"><small>Horário (opcional)</small><input class="field" type="time" id="fHora"></label>
-      <label id="fFimW" style="display:none"><small>Até</small><input class="field" type="date" id="fFim" value="${addDays(form.date_key,1)}"></label>
+      <label id="fFimW" style="display:none"><small>Até</small><input class="field" type="date" id="fFim"></label>
     </div>
+    <div class="f-row" id="fHorasW">
+      <label><small>Início (opcional)</small><input class="field" type="time" id="fHora"></label>
+      <label><small>Fim (opcional)</small><input class="field" type="time" id="fHoraFim"></label>
+    </div>
+    <div class="toggle"><span>Notificar<small id="fAlHint">Avisa ${outro} agora e os dois na véspera, às 19h.</small></span><button class="sw-t on" id="fAl" onclick="toggleAl()" aria-label="Notificar"></button></div>
     <div class="sh-actions"><button class="btn av" id="fSave" onclick="saveAviso()">Salvar aviso</button><button class="btn ghost" onclick="closeForm()">Cancelar</button></div>`;
 }
 function pickTipo(t){
@@ -892,40 +973,48 @@ function pickTipo(t){
   document.querySelectorAll('#fTipo .chip').forEach(c=>c.classList.toggle('on',c.dataset.t===t));
   document.getElementById('fTxt').placeholder=EXEMPLO[t];
 }
-function togglePer(){
-  form.periodo=!form.periodo;const p=form.periodo;
-  document.getElementById('fPer').classList.toggle('on',p);
-  document.getElementById('fHoraW').style.display=p?'none':'';
-  document.getElementById('fFimW').style.display=p?'':'none';
-  document.getElementById('fIniL').textContent=p?'De':'Dia';
-  const ini=document.getElementById('fIni').value,fim=document.getElementById('fFim');
-  if(p&&ini&&(!fim.value||fim.value<=ini))fim.value=addDays(ini,1);
+function setModo(m){
+  form.modo=m;
+  document.querySelectorAll('#fModo button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  document.getElementById('fDiasW').style.display=m==='semana'?'':'none';
+  document.getElementById('fFimW').style.display=m==='um'?'none':'';
+  document.getElementById('fHorasW').style.display=m==='varios'?'none':'';
+  document.getElementById('fIniL').textContent=m==='um'?'Dia':'De';
+  const ini=document.getElementById('fIni').value||today(),fim=document.getElementById('fFim');
+  if(m==='varios'&&(!fim.value||fim.value<=ini))fim.value=addDays(ini,1);
+  if(m==='semana'&&(!fim.value||fim.value<=ini))fim.value=ini.slice(0,4)+'-12-31';
+  // atividades da semana costumam não precisar de alerta
+  setAlerta(m!=='semana');
 }
+function toggleDia(i){
+  const s=new Set(form.dias);s.has(i)?s.delete(i):s.add(i);form.dias=[...s].sort();
+  document.querySelectorAll('#fDias .chip').forEach(c=>c.classList.toggle('on',form.dias.includes(+c.dataset.d)));
+}
+function setAlerta(v){form.alerta=v;document.getElementById('fAl').classList.toggle('on',v);}
+function toggleAl(){setAlerta(!form.alerta);}
 async function saveAviso(){
   const txt=document.getElementById('fTxt').value.trim();
   const ini=document.getElementById('fIni').value;
-  const per=form.periodo;
-  let fim=per?document.getElementById('fFim').value:null;
+  const m=form.modo;
+  let fim=m==='um'?null:document.getElementById('fFim').value;
   if(!txt){toast('Escreva o aviso');document.getElementById('fTxt').focus();return;}
   if(!ini){toast('Escolha o dia');return;}
-  if(per&&!fim){toast('Escolha até quando');return;}
-  if(per&&fim<ini){toast('A data final vem antes da inicial');return;}
-  if(fim===ini)fim=null;
-  const hv=document.getElementById('fHora').value;
-  const row={date_key:ini,date_end:fim,hora:!per&&hv?hv.slice(0,5):null,tipo:form.tipo,texto:txt.slice(0,200),created_by:localStorage.getItem('gj_user')||'?'};
+  if(m!=='um'&&!fim){toast('Escolha até quando');return;}
+  if(fim&&fim<ini){toast('A data final vem antes da inicial');return;}
+  if(m==='semana'&&!form.dias.length){toast('Escolha os dias da semana');return;}
+  if(m==='varios'&&fim===ini)fim=null;
+  const hv=document.getElementById('fHora').value,hf=document.getElementById('fHoraFim').value;
+  const comHora=m!=='varios'&&hv;
+  const row={date_key:ini,date_end:fim,hora:comHora?hv.slice(0,5):null,hora_fim:comHora&&hf?hf.slice(0,5):null,
+    dias_semana:m==='semana'?form.dias:null,alerta:form.alerta,tipo:form.tipo,texto:txt.slice(0,200),
+    created_by:localStorage.getItem('gj_user')||'?'};
   if(!sb){toast('Sem conexão agora');return;}
   const btn=document.getElementById('fSave');btn.disabled=true;btn.textContent='Salvando';
   const{error}=await sb.from('guarda_avisos').insert(row);
   if(error){console.error(error);toast('Não foi possível salvar');btn.disabled=false;btn.textContent='Salvar aviso';return;}
   form=null;toast('Aviso salvo');
-  AV=[...AV,{...row,id:-Date.now()}].sort((a,b)=>a.date_key.localeCompare(b.date_key));
+  AV=[...AV,{...row,excecoes:[],id:-Date.now()}].sort((a,b)=>a.date_key.localeCompare(b.date_key));
   render();loadAvisos();
-}
-async function deleteAviso(id){
-  if(!confirm('Apagar este aviso?'))return;
-  AV=AV.filter(a=>a.id!==id);render();
-  if(sb&&id>0){const{error}=await sb.from('guarda_avisos').delete().eq('id',id);if(error){toast('Não foi possível apagar');}}
-  loadAvisos();
 }
 
 // ===== NOTIFICAÇÕES PUSH =====
