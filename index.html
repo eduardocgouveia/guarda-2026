@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F0EBE1">
-<title>Guarda Joaquim 2026</title>
+<title>Guarda Joaquim</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3VhcmRhIEpvYXF1aW0gMjAyNiIsInNob3J0X25hbWUiOiJHdWFyZGEiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI0YwRUJFMSIsInRoZW1lX2NvbG9yIjoiI0YwRUJFMSIsImljb25zIjpbXX0=">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR3VhcmRhIEpvYXF1aW0iLCJzaG9ydF9uYW1lIjoiR3VhcmRhIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNGMEVCRTEiLCJ0aGVtZV9jb2xvciI6IiNGMEVCRTEiLCJpY29ucyI6W119">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -24,6 +24,12 @@
 }
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;max-width:480px;margin:0 auto;padding:0 10px 80px}
 h1{font-family:'Fraunces',serif}
+
+.year-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
+.year-btn{width:36px;height:36px;border:none;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text);transition:.2s}
+.year-btn:active{background:var(--surface3)}
+.year-btn:disabled{opacity:.3;cursor:default}
+.year-label{font-size:24px;font-weight:800;font-family:'Fraunces',serif;color:var(--text);min-width:60px;text-align:center}
 
 .tabs{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius);padding:4px;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .tab{flex:1;padding:10px 4px;border:none;cursor:pointer;font:600 11px 'Outfit',sans-serif;background:none;color:var(--text3);border-radius:10px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:4px}
@@ -66,6 +72,7 @@ h1{font-family:'Fraunces',serif}
 .day.pai .day-tag{color:var(--pai)}
 .day.shared .day-tag{color:var(--shared)}
 .day-hol{font-size:6px;color:var(--accent)}
+.vac-banner{background:linear-gradient(135deg,#E1EEF8,#F0E6F6);border:1.5px solid rgba(74,127,181,0.2);border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:11px;color:var(--text);font-weight:600;text-align:center}
 
 .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
 .legend span{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--text2)}
@@ -133,174 +140,273 @@ details summary{font-size:11px;font-weight:700;cursor:pointer;color:var(--text)}
 .sync-dot.offline{background:var(--danger)}
 .sync-dot.loading{background:var(--accent);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.setup-screen{padding:30px 16px;text-align:center}
-.setup-input{width:100%;padding:10px 12px;border:2px solid var(--surface3);border-radius:10px;font:500 13px 'Outfit',sans-serif;background:var(--surface);color:var(--text);margin:6px 0;outline:none}
-.setup-input:focus{border-color:var(--accent)}
-.setup-btn{width:100%;padding:12px;border:none;border-radius:10px;font:700 14px 'Outfit',sans-serif;background:var(--accent);color:#fff;cursor:pointer;margin-top:10px}
 .impact-warn{font-size:10px;color:var(--danger);font-weight:600;text-align:center;margin-top:8px;padding:6px 8px;background:rgba(191,78,78,0.08);border-radius:6px}
-.birthday-banner{background:linear-gradient(135deg,#FFF8ED,#FEF0D5);border:1.5px solid rgba(212,168,67,0.3);border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:11px;color:var(--accent);font-weight:600;text-align:center}
 </style>
 </head>
 <body>
-<div style="text-align:center;padding:16px 0 12px">
-  <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.5px">Guarda Joaquim · 2026</h1>
-  <p style="font-size:10px;color:var(--text3);margin-top:3px">10/Abr a 31/Dez · Guarda Compartilhada · Recife/PE</p>
+<div style="text-align:center;padding:16px 0 6px">
+  <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.5px">Guarda Joaquim</h1>
+  <div class="year-nav" style="margin-top:6px">
+    <button class="year-btn" id="yearPrev" onclick="changeYear(-1)">‹</button>
+    <span class="year-label" id="yearLabel"></span>
+    <button class="year-btn" onclick="changeYear(1)">›</button>
+  </div>
+  <p style="font-size:10px;color:var(--text3);margin-top:3px" id="subtitle"></p>
 </div>
 
 <div class="tabs" id="tabs"></div>
 <div id="app"></div>
-<p class="footer">Eduardo & Raquel · Guarda Compartilhada · Recife/PE 2026</p>
+<p class="footer">Eduardo & Raquel · Guarda Compartilhada · Recife/PE</p>
 <div id="toasts"></div>
 
 <script>
 const R="Raquel",E="Eduardo",S="Compartilhado";
 const MO=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const DA=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-const START="2026-04-10",END="2026-12-31";
 
-const HOL={
-  "2026-04-21":{name:"Tiradentes",type:"Nacional"},
-  "2026-05-01":{name:"Dia do Trabalhador",type:"Nacional"},
-  "2026-05-10":{name:"Dia das Mães",type:"Comemorativo"},
-  "2026-06-04":{name:"Corpus Christi",type:"Facultativo"},
-  "2026-06-24":{name:"São João",type:"Estadual"},
-  "2026-07-16":{name:"N.S. do Carmo",type:"Municipal"},
-  "2026-07-20":{name:"🎂 Aniversário do Joaquim",type:"Pessoal"},
-  "2026-07-27":{name:"🎂 Aniversário do Eduardo",type:"Pessoal"},
-  "2026-08-09":{name:"Dia dos Pais",type:"Comemorativo"},
-  "2026-09-07":{name:"Independência",type:"Nacional"},
-  "2026-09-28":{name:"🎂 Aniversário da Raquel",type:"Pessoal"},
-  "2026-10-12":{name:"N.S. Aparecida / Crianças",type:"Nacional"},
-  "2026-11-02":{name:"Finados",type:"Nacional"},
-  "2026-11-15":{name:"Proclamação da República",type:"Nacional"},
-  "2026-11-20":{name:"Consciência Negra",type:"Nacional"},
-  "2026-12-08":{name:"Imaculada Conceição",type:"Municipal"},
-  "2026-12-25":{name:"Natal",type:"Nacional"},
-};
+// ===== STATE =====
+let year=new Date().getFullYear();
+if(year<2026)year=2026;
+let tab='cal',month=0,editing=null;
+let syncState='loading';
+let db=null;
+let BASE={},NOTES={},HOL={};
+let schedule={},changes={};
 
+// ===== DATE HELPERS =====
 function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function dim(y,m){return new Date(y,m+1,0).getDate()}
 function gdow(y,m,d){return new Date(y,m,d).getDay()}
-function inR(k){return k>=START&&k<=END}
 function today(){const n=new Date();return dk(n.getFullYear(),n.getMonth(),n.getDate())}
+function getStart(){return year===2026?"2026-04-10":dk(year,0,1)}
+function getEnd(){return dk(year,11,31)}
+function inR(k){return k>=getStart()&&k<=getEnd()}
+function getMinMonth(){return year===2026?3:0}
 
-function buildBase(){
+// ===== EASTER & MOVABLE HOLIDAYS =====
+function easterDate(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100;
+  const d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3);
+  const h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4),k2=c%4;
+  const l=(32+2*e+2*i-h-k2)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const mo=Math.floor((h+l-7*m+114)/31)-1;
+  const da=((h+l-7*m+114)%31)+1;
+  return{month:mo,day:da};
+}
+function dateAdd(y,m,d,days){const dt=new Date(y,m,d+days);return{month:dt.getMonth(),day:dt.getDate()}}
+function nthSunday(y,m,n){const d1=new Date(y,m,1).getDay();const first=d1===0?1:8-d1;return first+7*(n-1)}
+
+// ===== BUILD HOLIDAYS FOR YEAR =====
+function buildHolidays(y){
+  const e=easterDate(y);
+  const carTer=dateAdd(y,e.month,e.day,-47);
+  const carSeg=dateAdd(y,e.month,e.day,-48);
+  const sextaSanta=dateAdd(y,e.month,e.day,-2);
+  const cc=dateAdd(y,e.month,e.day,60);
+  const dMae=nthSunday(y,4,2);
+  const dPai=nthSunday(y,7,2);
+  const hol={};
+  function add(m,d,name,type){hol[dk(y,m,d)]={name,type}}
+  add(0,1,"Ano Novo","Nacional");
+  add(carSeg.month,carSeg.day,"Carnaval (Seg)","Facultativo");
+  add(carTer.month,carTer.day,"Carnaval (Ter)","Facultativo");
+  add(sextaSanta.month,sextaSanta.day,"Sexta-feira Santa","Nacional");
+  add(3,21,"Tiradentes","Nacional");
+  add(4,1,"Dia do Trabalhador","Nacional");
+  add(4,dMae,"Dia das Mães","Comemorativo");
+  add(cc.month,cc.day,"Corpus Christi","Facultativo");
+  add(5,24,"São João","Estadual");
+  add(6,16,"N.S. do Carmo","Municipal");
+  add(6,20,"🎂 Aniversário do Joaquim","Pessoal");
+  add(6,27,"🎂 Aniversário do Eduardo","Pessoal");
+  add(7,dPai,"Dia dos Pais","Comemorativo");
+  add(8,7,"Independência","Nacional");
+  add(8,28,"🎂 Aniversário da Raquel","Pessoal");
+  add(9,12,"N.S. Aparecida / Crianças","Nacional");
+  add(10,2,"Finados","Nacional");
+  add(10,15,"Proclamação da República","Nacional");
+  add(10,20,"Consciência Negra","Nacional");
+  add(11,8,"Imaculada Conceição","Municipal");
+  add(11,25,"Natal","Nacional");
+  return hol;
+}
+
+// ===== BUILD BASE SCHEDULE =====
+function buildBase(y){
   const s={},n={};
-  const ref=new Date(2026,3,10);
-  for(let m=3;m<12;m++){for(let d=1;d<=dim(2026,m);d++){
-    const k=dk(2026,m,d);if(!inR(k))continue;
-    const w=gdow(2026,m,d);
+  const hol=buildHolidays(y);
+  const ref=new Date(2026,3,10); // Fixed weekend reference: Apr 10, 2026 = Raquel
+  const startK=y===2026?"2026-04-10":dk(y,0,1);
+  const startM=y===2026?3:0;
+
+  for(let m=startM;m<12;m++){for(let d=1;d<=dim(y,m);d++){
+    const k=dk(y,m,d);
+    if(k<startK)continue;
+
+    // January vacation (2027+)
+    if(y>=2027&&m===0){
+      if(d<=15){s[k]=E;n[k]="🏖️ Férias — 1ª quinzena (pai)";continue;}
+      else{s[k]=R;n[k]="🏖️ Férias — 2ª quinzena (mãe)";continue;}
+    }
+
+    // Regular weekly schedule
+    const w=gdow(y,m,d);
     if(w===1||w===2){s[k]=R;n[k]="Regime semanal (Seg/Ter)";}
     else if(w===3||w===4){s[k]=E;n[k]="Regime semanal (Qua/Qui)";}
-    else{let fri;if(w===5)fri=new Date(2026,m,d);else if(w===6)fri=new Date(2026,m,d-1);else fri=new Date(2026,m,d-2);
-      const diff=Math.round((fri-ref)/(7*86400000));s[k]=diff%2===0?R:E;n[k]="Fim de semana alternado";}
+    else{
+      let fri;
+      if(w===5)fri=new Date(y,m,d);
+      else if(w===6)fri=new Date(y,m,d-1);
+      else fri=new Date(y,m,d-2);
+      const diff=Math.round((fri-ref)/(7*86400000));
+      s[k]=diff%2===0?R:E;
+      n[k]="Fim de semana alternado";
+    }
   }}
-  // Fixed dates
-  s["2026-12-25"]=R;n["2026-12-25"]="Natal — fixo com a mãe";
-  s["2026-05-10"]=R;n["2026-05-10"]="Dia das Mães — fixo com a mãe";
-  s["2026-08-09"]=E;n["2026-08-09"]="Dia dos Pais — fixo com o pai";
-  // Birthdays
-  s["2026-07-20"]=R;n["2026-07-20"]="🎂 Aniversário do Joaquim — alternado (2026: mãe)";
-  s["2026-07-27"]=E;n["2026-07-27"]="🎂 Aniversário do Eduardo — fixo com o pai";
-  s["2026-09-28"]=R;n["2026-09-28"]="🎂 Aniversário da Raquel — fixo com a mãe";
-  // Alternating holidays
-  const alt=["2026-04-21","2026-05-01","2026-06-04","2026-06-24","2026-07-16","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-08"];
-  let t=true;for(const k of alt){if(s[k]!==undefined){s[k]=t?R:E;n[k]=(HOL[k]?.name||"Feriado")+" — alternado";t=!t;}}
-  return{s,n};
-}
 
-const{s:BASE,n:NOTES}=buildBase();
-
-// Trocas acordadas — registradas como alterações para aparecerem na aba "Alterações"
-const INITIAL_CHANGES={
-  "2026-06-01":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
-  "2026-06-02":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
-  "2026-06-04":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Corpus Christi"},
-  "2026-06-05":{from:"Raquel",to:"Eduardo",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco Corpus Christi"},
-  "2026-06-24":{from:"Eduardo",to:"Raquel",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"São João"},
-  "2026-06-25":{from:"Eduardo",to:"Raquel",by:"Acordo",at:"2026-04-15T00:00:00.000Z",note:"Bloco São João"},
-};
-function mergeInitialChanges(){
-  let added=false;
-  for(const[k,v]of Object.entries(INITIAL_CHANGES)){
-    if(!changes[k]){changes[k]=v;schedule[k]=(v.to==='Raquel'?R:E);added=true;}
+  // ===== FIXED DATES =====
+  // Natal alternado: 2026=mãe(par), 2027=pai(ímpar)...
+  const xKey=dk(y,11,25);
+  if(s[xKey]!==undefined){
+    s[xKey]=y%2===0?R:E;
+    n[xKey]=`Natal — alternado (${y}: ${y%2===0?'mãe':'pai'})`;
   }
-  return added;
+  // Ano Novo: oposto do Natal do ano anterior
+  // Natal par=mãe → Ano Novo seguinte(ímpar)=pai | Natal ímpar=pai → Ano Novo seguinte(par)=mãe
+  const nyKey=dk(y,0,1);
+  if(s[nyKey]!==undefined&&y>=2027){
+    s[nyKey]=y%2===0?R:E;
+    n[nyKey]=`Ano Novo — alternado (${y}: ${y%2===0?'mãe':'pai'})`;
+  }
+  // Dia das Mães → fixo mãe
+  const mdKey=Object.keys(hol).find(k=>hol[k].name==="Dia das Mães");
+  if(mdKey&&s[mdKey]!==undefined){s[mdKey]=R;n[mdKey]="Dia das Mães — fixo com a mãe";}
+  // Dia dos Pais → fixo pai
+  const fdKey=Object.keys(hol).find(k=>hol[k].name==="Dia dos Pais");
+  if(fdKey&&s[fdKey]!==undefined){s[fdKey]=E;n[fdKey]="Dia dos Pais — fixo com o pai";}
+  // Aniversário Joaquim alternado: par=mãe, ímpar=pai
+  const jbKey=dk(y,6,20);
+  if(s[jbKey]!==undefined){
+    s[jbKey]=y%2===0?R:E;
+    n[jbKey]=`🎂 Aniv. Joaquim — alternado (${y}: ${y%2===0?'mãe':'pai'})`;
+  }
+  // Aniversário Eduardo → fixo pai
+  const ebKey=dk(y,6,27);
+  if(s[ebKey]!==undefined){s[ebKey]=E;n[ebKey]="🎂 Aniv. Eduardo — fixo com o pai";}
+  // Aniversário Raquel → fixo mãe
+  const rbKey=dk(y,8,28);
+  if(s[rbKey]!==undefined){s[rbKey]=R;n[rbKey]="🎂 Aniv. Raquel — fixo com a mãe";}
+
+  // ===== ALTERNATING HOLIDAYS =====
+  const fixedSet=new Set([xKey,nyKey,mdKey,fdKey,jbKey,ebKey,rbKey]);
+  const altList=Object.keys(hol).filter(k=>!fixedSet.has(k)&&s[k]!==undefined).sort();
+  // Par: começa Raquel, Ímpar: começa Eduardo
+  let turn=y%2===0;
+  for(const k of altList){
+    s[k]=turn?R:E;
+    n[k]=(hol[k]?.name||"Feriado")+" — alternado";
+    turn=!turn;
+  }
+
+  // ===== 2026: TROCAS ACORDADAS JUNHO =====
+  if(y===2026){
+    s["2026-06-01"]=E;n["2026-06-01"]="Troca acordada — bloco Corpus Christi (pai)";
+    s["2026-06-02"]=E;n["2026-06-02"]="Troca acordada — bloco Corpus Christi (pai)";
+    s["2026-06-04"]=E;n["2026-06-04"]="Corpus Christi — troca acordada (pai)";
+    s["2026-06-05"]=E;n["2026-06-05"]="Troca acordada — bloco Corpus Christi (pai)";
+    s["2026-06-24"]=R;n["2026-06-24"]="São João — troca acordada (mãe)";
+    s["2026-06-25"]=R;n["2026-06-25"]="Troca acordada — bloco São João (mãe)";
+  }
+
+  return{s,n,hol};
 }
 
-let schedule={...BASE};
-let changes={};
-let tab='cal',month=new Date().getMonth()<3?3:Math.min(new Date().getMonth(),11),editing=null;
-let syncState='loading'; // 'online','offline','loading'
-let db=null;
+// ===== YEAR MANAGEMENT =====
+function loadYear(y){
+  year=y;
+  const res=buildBase(y);
+  BASE=res.s;NOTES=res.n;HOL=res.hol;
+  schedule={...BASE};
+  changes={};
+  month=getMinMonth();
+  editing=null;
+  document.getElementById('yearLabel').textContent=y;
+  document.getElementById('yearPrev').disabled=(y<=2026);
+  document.getElementById('subtitle').textContent=
+    y===2026?'10/Abr a 31/Dez · Guarda Compartilhada · Recife/PE':
+    'Jan a Dez · Guarda Compartilhada · Recife/PE';
+  document.title=`Guarda Joaquim · ${y}`;
+  initFirebase();
+}
+function changeYear(d){loadYear(year+d);}
 
-// ===== FIREBASE CONFIG =====
-// Cole aqui sua configuração do Firebase
+// ===== FIREBASE =====
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyD1eryT9TT4OYQ0NxkTEx1_MM8J_nAoX-k",
-  authDomain: "guarda-joaquim-2026.firebaseapp.com",
-  databaseURL: "https://guarda-joaquim-2026-default-rtdb.firebaseio.com",
-  projectId: "guarda-joaquim-2026",
-  storageBucket: "guarda-joaquim-2026.firebasestorage.app",
-  messagingSenderId: "870090478944",
-  appId: "1:870090478944:web:92402ac819564a0ecc3a05"
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI.firebaseapp.com",
+  databaseURL: "https://COLE_AQUI-default-rtdb.firebaseio.com",
+  projectId: "COLE_AQUI",
+  storageBucket: "COLE_AQUI.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "COLE_AQUI"
 };
+let fbInitialized=false,listeners=[];
 
 function initFirebase(){
+  // Remove previous listeners
+  listeners.forEach(l=>l());listeners=[];
+  const lsKey=`gj${year%100}`;
+
   if(FIREBASE_CONFIG.apiKey==="COLE_AQUI"){
     syncState='offline';
-    // Load from localStorage as fallback
-    schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
-    changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
-    mergeInitialChanges();save();
-    render();
-    return;
+    schedule=JSON.parse(localStorage.getItem(lsKey+'_s')||'null')||{...BASE};
+    changes=JSON.parse(localStorage.getItem(lsKey+'_c')||'{}');
+    for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
+    render();return;
   }
   try{
-    firebase.initializeApp(FIREBASE_CONFIG);
+    if(!fbInitialized){firebase.initializeApp(FIREBASE_CONFIG);fbInitialized=true;}
     db=firebase.database();
-    // Listen for real-time changes
-    db.ref('guarda2026/changes').on('value',(snap)=>{
-      const data=snap.val();
-      changes=data||{};
-      // Rebuild schedule from base + changes
+    const ref=db.ref(`guarda${year}/changes`);
+    const cb=ref.on('value',(snap)=>{
+      const data=snap.val();changes=data||{};
       schedule={...BASE};
-      const seeded=mergeInitialChanges();
       for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
-      if(seeded){db.ref('guarda2026/changes').set(changes);}
-      // Cache locally
-      localStorage.setItem('gj26_s',JSON.stringify(schedule));
-      localStorage.setItem('gj26_c',JSON.stringify(changes));
-      syncState='online';
-      render();
+      localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
+      localStorage.setItem(lsKey+'_c',JSON.stringify(changes));
+      syncState='online';render();
     });
-    db.ref('.info/connected').on('value',(snap)=>{
-      syncState=snap.val()?'online':'offline';
-      render();
-    });
+    listeners.push(()=>ref.off('value',cb));
+    const conRef=db.ref('.info/connected');
+    const conCb=conRef.on('value',(snap)=>{syncState=snap.val()?'online':'offline';render();});
+    listeners.push(()=>conRef.off('value',conCb));
   }catch(e){
     console.error('Firebase error:',e);
     syncState='offline';
-    schedule=JSON.parse(localStorage.getItem('gj26_s')||'null')||{...BASE};
-    changes=JSON.parse(localStorage.getItem('gj26_c')||'{}');
-    mergeInitialChanges();save();
+    schedule=JSON.parse(localStorage.getItem(lsKey+'_s')||'null')||{...BASE};
+    changes=JSON.parse(localStorage.getItem(lsKey+'_c')||'{}');
+    for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
     render();
   }
 }
 
 function save(){
-  localStorage.setItem('gj26_s',JSON.stringify(schedule));
-  localStorage.setItem('gj26_c',JSON.stringify(changes));
+  const lsKey=`gj${year%100}`;
+  localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
+  localStorage.setItem(lsKey+'_c',JSON.stringify(changes));
   if(db){
-    db.ref('guarda2026/changes').set(changes).then(()=>{
+    db.ref(`guarda${year}/changes`).set(changes).then(()=>{
       toast('✅ Sincronizado');
     }).catch(()=>{toast('⚠️ Salvo localmente');});
   }
 }
 function swap(k){const cur=schedule[k];const nv=cur===R?E:cur===E?R:E;schedule[k]=nv;
-  if(nv!==BASE[k])changes[k]={from:BASE[k],to:nv,by:localStorage.getItem('gj26_user')||'?',at:new Date().toISOString()};else delete changes[k];save();editing=null;render();}
+  if(nv!==BASE[k])changes[k]={from:BASE[k],to:nv,by:localStorage.getItem('gj_user')||'?',at:new Date().toISOString()};else delete changes[k];save();editing=null;render();}
 function undo(k){schedule[k]=BASE[k];delete changes[k];save();render();}
-function resetAll(){if(!confirm('Tem certeza que deseja resetar todas as alterações?'))return;schedule={...BASE};changes={};save();editing=null;render();}
+function resetAll(){if(!confirm('Tem certeza que deseja resetar todas as alterações de '+year+'?'))return;schedule={...BASE};changes={};save();editing=null;render();}
 function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),2100);}
 
 function getSyncHTML(){
@@ -310,13 +416,12 @@ function getSyncHTML(){
 }
 
 // Set user identity
-if(!localStorage.getItem('gj26_user')){
+if(!localStorage.getItem('gj_user')){
   const u=prompt('Quem é você?\n\n1 - Eduardo (pai)\n2 - Raquel (mãe)');
-  localStorage.setItem('gj26_user',u==='1'||u?.toLowerCase().includes('edu')?'Eduardo':'Raquel');
+  localStorage.setItem('gj_user',u==='1'||u?.toLowerCase().includes('edu')?'Eduardo':'Raquel');
 }
 
-initFirebase();
-
+// ===== RENDER HELPERS =====
 function clsFor(k){return schedule[k]===S?'shared':schedule[k]===R?'mae':'pai'}
 function colorFor(k){return schedule[k]===S?'var(--shared)':schedule[k]===R?'var(--mae)':'var(--pai)'}
 function bgFor(k){return schedule[k]===S?'var(--shared-light)':schedule[k]===R?'var(--mae-light)':'var(--pai-light)'}
@@ -329,7 +434,7 @@ function getTotals(){
   return{r,e,s,rD:r-rO,eD:e-eO,total:r+e+s};
 }
 function getMTotals(m){
-  let r=0,e=0,s=0;for(let d=1;d<=dim(2026,m);d++){const k=dk(2026,m,d);if(!inR(k))continue;const v=schedule[k];v===R?r++:v===E?e++:s++;}
+  let r=0,e=0,s=0;for(let d=1;d<=dim(year,m);d++){const k=dk(year,m,d);if(!inR(k))continue;const v=schedule[k];v===R?r++:v===E?e++:s++;}
   return{r,e,s};
 }
 
@@ -344,9 +449,10 @@ function renderTabs(){
 
 function renderCal(){
   const t=getTotals(),mt=getMTotals(month),td=today(),pR=t.total?Math.round(t.r/t.total*100):0,pE=t.total?Math.round(t.e/t.total*100):0;
+  const minM=getMinMonth();
   let h='';
   h+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <span style="font-size:11px;font-weight:700">Balanço (${t.total} dias)</span>
+    <span style="font-size:11px;font-weight:700">Balanço ${year} (${t.total} dias)</span>
     <span style="font-size:10px;color:${Math.abs(t.r-t.e)<=5?'var(--success)':'var(--accent)'};font-weight:700">Diff: ${Math.abs(t.r-t.e)}</span>
   </div><div class="stat-row">
     <div class="stat" style="background:var(--mae-light)"><div class="stat-val" style="color:var(--mae)">${t.r}</div><div class="stat-label" style="color:var(--mae)">Raquel (${pR}%)</div>${t.rD?`<div class="stat-diff" style="color:${t.rD>0?'var(--success)':'var(--danger)'}">${t.rD>0?'+':''}${t.rD}</div>`:''}</div>
@@ -356,24 +462,28 @@ function renderCal(){
 
   h+=getSyncHTML();
 
+  // Vacation banner
+  if(year>=2027&&month===0){
+    h+=`<div class="vac-banner">🏖️ Férias de Janeiro: 1–15 com <strong style="color:var(--pai)">Eduardo</strong> · 16–31 com <strong style="color:var(--mae)">Raquel</strong></div>`;
+  }
+
   h+=`<div class="card"><div class="month-nav">
-    <button class="month-btn" onclick="month=Math.max(3,month-1);editing=null;render()" ${month<=3?'disabled':''}>‹</button>
-    <div style="text-align:center"><div class="month-name">${MO[month]} 2026</div><div class="month-sub">R: ${mt.r} · E: ${mt.e}${mt.s?' · 🤝 '+mt.s:''}</div></div>
+    <button class="month-btn" onclick="month=Math.max(${minM},month-1);editing=null;render()" ${month<=minM?'disabled':''}>‹</button>
+    <div style="text-align:center"><div class="month-name">${MO[month]} ${year}</div><div class="month-sub">R: ${mt.r} · E: ${mt.e}${mt.s?' · 🤝 '+mt.s:''}</div></div>
     <button class="month-btn" onclick="month=Math.min(11,month+1);editing=null;render()" ${month>=11?'disabled':''}>›</button>
   </div>`;
 
   h+=`<div class="legend">
     <span><span class="legend-dot" style="background:var(--mae-light);border:1.5px solid rgba(155,107,176,0.3)"></span>Mãe</span>
     <span><span class="legend-dot" style="background:var(--pai-light);border:1.5px solid rgba(74,127,181,0.3)"></span>Pai</span>
-    <span><span class="legend-dot" style="background:var(--shared-light);border:1.5px solid rgba(212,168,67,0.3)"></span>Ambos</span>
     <span><span class="legend-dot" style="border:2.5px solid var(--accent)"></span>Hoje</span>
     <span>⭐ Feriado/🎂</span></div>`;
 
-  const days=dim(2026,month),first=gdow(2026,month,1);
+  const days=dim(year,month),first=gdow(year,month,1);
   h+=`<div class="cal-header">${DA.map(d=>`<span>${d}</span>`).join('')}</div><div class="cal-grid">`;
   for(let i=0;i<first;i++)h+='<div></div>';
   for(let d=1;d<=days;d++){
-    const k=dk(2026,month,d),active=inR(k);
+    const k=dk(year,month,d),active=inR(k);
     if(!active){h+=`<div class="day inactive"><span class="day-num">${d}</span></div>`;continue;}
     const cl=clsFor(k),isTd=k===td,isH=HOL[k],isCh=changes[k],isEd=editing===k;
     h+=`<div class="day ${cl}${isTd?' today':''}${isEd?' editing':''}${isCh?' changed':''}" onclick="editing=editing==='${k}'?null:'${k}';render()">
@@ -385,7 +495,7 @@ function renderCal(){
   if(editing&&inR(editing)){
     const dw=DA[new Date(editing+'T12:00:00').getDay()],isShared=schedule[editing]===S;
     h+=`<div class="card edit-panel"><div style="display:flex;justify-content:space-between;align-items:center"><div>
-      <div class="edit-title">${parseInt(editing.slice(8))}/${parseInt(editing.slice(5,7))}/2026 — ${dw}</div>
+      <div class="edit-title">${parseInt(editing.slice(8))}/${parseInt(editing.slice(5,7))}/${year} — ${dw}</div>
       <div class="edit-sub">${NOTES[editing]||'Regime semanal'}</div>
       ${HOL[editing]?`<div class="edit-hol">${HOL[editing].name}</div>`:''}
       ${changes[editing]?`<div style="font-size:10px;color:var(--accent);margin-top:2px">✏️ Original: ${changes[editing].from}</div>`:''}
@@ -401,15 +511,19 @@ function renderCal(){
     </div></div>`;
   }
 
+  const jqAno=year%2===0?'mãe':'pai';
+  const xmasAno=year%2===0?'mãe':'pai';
+  const nyAno=year%2===0?'mãe':'pai';
   h+=`<details class="card"><summary>📋 Regras do Acordo</summary><div class="rules">
     <div><strong>Seg/Ter:</strong> Raquel · <strong>Qua/Qui:</strong> Eduardo</div>
-    <div><strong>Sex/Sáb/Dom:</strong> Alternados (início 10/04 → Raquel)</div>
-    <div><strong>Natal:</strong> Raquel · <strong>Dia das Mães:</strong> Raquel · <strong>Dia dos Pais:</strong> Eduardo</div>
-    <div><strong>Aniversário da Raquel (28/09):</strong> sempre com a mãe</div>
-    <div><strong>Aniversário do Eduardo (27/07):</strong> sempre com o pai</div>
-    <div><strong>Aniversário do Joaquim (20/07):</strong> alternado (2026: mãe)</div>
-    <div><strong>20/07:</strong> Aniv. Joaquim (compartilhado) · <strong>27/07:</strong> Aniv. Eduardo (com pai) · <strong>28/07:</strong> Aniv. Raquel (com mãe)</div>
-    <div><strong>Demais feriados:</strong> Alternância a partir de Tiradentes</div></div></details>`;
+    <div><strong>Sex/Sáb/Dom:</strong> Alternados (ref: 10/04/2026 → Raquel)</div>
+    ${year>=2027?'<div><strong>Férias Jan:</strong> 1–15 com pai · 16–31 com mãe</div>':''}
+    <div><strong>Natal ${year}:</strong> ${xmasAno} (alternado) · <strong>Ano Novo ${year}:</strong> ${nyAno} (alternado)</div>
+    <div><strong>Dia das Mães:</strong> Raquel · <strong>Dia dos Pais:</strong> Eduardo</div>
+    <div><strong>Aniv. Raquel (28/09):</strong> sempre com a mãe</div>
+    <div><strong>Aniv. Eduardo (27/07):</strong> sempre com o pai</div>
+    <div><strong>Aniv. Joaquim (20/07):</strong> alternado (${year}: ${jqAno})</div>
+    <div><strong>Demais feriados:</strong> Alternância anual</div></div></details>`;
   return h;
 }
 
@@ -417,8 +531,8 @@ function renderFer(){
   const td=today();
   const list=Object.entries(HOL).filter(([k])=>inR(k)).sort(([a],[b])=>a.localeCompare(b));
   const cR=list.filter(([k])=>schedule[k]===R).length,cE=list.filter(([k])=>schedule[k]===E).length,cS=list.filter(([k])=>schedule[k]===S).length;
-  let h=`<div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif;margin-bottom:4px">Feriados & Datas Especiais</div>
-    <div style="font-size:10px;color:var(--text2);margin-bottom:10px">Abr a Dez 2026 · Toque em "Trocar" para alterar</div>
+  let h=`<div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif;margin-bottom:4px">Feriados & Datas Especiais ${year}</div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:10px">${year===2026?'Abr a Dez':'Jan a Dez'} ${year} · Toque em "Trocar" para alterar</div>
     <div class="stat-row">
       <div class="stat" style="background:var(--mae-light)"><div class="stat-val" style="color:var(--mae)">${cR}</div><div class="stat-label" style="color:var(--mae)">Raquel</div></div>
       <div class="stat" style="background:var(--pai-light)"><div class="stat-val" style="color:var(--pai)">${cE}</div><div class="stat-label" style="color:var(--pai)">Eduardo</div></div>
@@ -426,13 +540,12 @@ function renderFer(){
     </div>`;
   for(const[k,info]of list){
     const cl=clsFor(k),isPast=k<td,dn=DA[new Date(k+'T12:00:00').getDay()],note=NOTES[k]||'',isShared=schedule[k]===S;
-    const isBday=info.name.includes('🎂');
     h+=`<div class="holiday-card ${cl}${isPast?' past':''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px">
         <div style="flex:1"><div class="hol-name">${info.name}</div><div class="hol-date">${parseInt(k.slice(8))}/${parseInt(k.slice(5,7))} · ${dn}${isPast?' · Passado':''}</div></div>
         <span class="hol-badge" style="background:${bgFor(k)};color:${colorFor(k)}">${nameFor(k)}</span></div>
       <div class="hol-tags"><span class="hol-tag">${info.type}</span>
-        ${note.includes('fixo')?'<span class="hol-tag fixed">🔒 Fixo</span>':note.includes('compartilhado')?'<span class="hol-tag shr">🤝 Compartilhado</span>':'<span class="hol-tag alt">🔄 Alternado</span>'}
+        ${note.includes('fixo')?'<span class="hol-tag fixed">🔒 Fixo</span>':note.includes('alternado')?'<span class="hol-tag alt">🔄 Alternado</span>':note.includes('Férias')?'<span class="hol-tag fixed">🏖️ Férias</span>':note.includes('Troca')?'<span class="hol-tag fixed">🤝 Acordo</span>':'<span class="hol-tag alt">🔄 Alternado</span>'}
         ${changes[k]?`<span style="font-size:10px;color:var(--accent);font-weight:600">✏️ era: ${BASE[k]}</span>`:''}</div>
       ${!isShared?`<button class="btn-hol-swap" style="background:${schedule[k]===R?'var(--pai-light)':'var(--mae-light)'};color:${schedule[k]===R?'var(--pai)':'var(--mae)'}" onclick="swap('${k}')">🔄 Trocar para ${schedule[k]===R?'Eduardo (pai)':'Raquel (mãe)'}</button>`:''}
     </div>`;
@@ -443,10 +556,10 @@ function renderFer(){
 function renderAlt(){
   const cc=Object.keys(changes).length,t=getTotals();
   let h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif">Alterações</div>
+    <div style="font-size:14px;font-weight:700;font-family:'Fraunces',serif">Alterações ${year}</div>
     ${cc>0?'<button class="btn-reset" onclick="resetAll()">🗑️ Resetar tudo</button>':''}</div>`;
   if(!cc){
-    h+=`<div class="card empty-state"><div class="empty-icon">✅</div><div class="empty-title">Nenhuma alteração</div><div class="empty-sub">Calendário conforme o acordo original.</div>
+    h+=`<div class="card empty-state"><div class="empty-icon">✅</div><div class="empty-title">Nenhuma alteração</div><div class="empty-sub">Calendário ${year} conforme o acordo original.</div>
       <div class="howto"><div class="howto-title">Como alterar um dia:</div><div class="howto-text">
         1️⃣ Aba <strong>Calendário</strong> ou <strong>Feriados</strong><br>
         2️⃣ Toque no dia desejado<br>
@@ -476,7 +589,14 @@ function render(){
   else if(tab==='fer')app.innerHTML=renderFer();
   else app.innerHTML=renderAlt();
 }
-// render() is called by initFirebase()
+
+// Initialize with current or appropriate year
+const now=new Date();
+const initYear=now.getFullYear()<2026?2026:now.getFullYear();
+// Set month to current month if viewing current year
+month=now.getFullYear()===initYear?now.getMonth():0;
+if(initYear===2026&&month<3)month=3;
+loadYear(initYear);
 </script>
 </body>
 </html>
