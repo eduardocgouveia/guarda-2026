@@ -277,6 +277,9 @@ input[type=date].field,input[type=time].field{font-size:15px;padding:12px 10px}
 .btn.del{background:none;color:var(--bad);height:44px}
 .cal-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .cal-links .btn{display:grid;place-items:center;text-decoration:none;font-size:15px;height:48px}
+.steps{margin:14px 0 0 0;padding-left:20px;font-size:14px;line-height:1.5;color:var(--text)}
+.steps li{margin-bottom:10px;padding-left:2px}
+.steps .small-btn{margin-left:8px;background:var(--aviso);color:#fff;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -904,11 +907,23 @@ function renderAvisosCard(){
 const ICS_HOST='rmllgosztllefrzndutn.supabase.co/functions/v1/calendario?k=5859f5f4f725ce7a5fd75db2';
 function renderAgendaCard(){
   const webcal='webcal://'+ICS_HOST;
-  const google='https://calendar.google.com/calendar/r?cid='+encodeURIComponent(webcal);
   return `<section class="glass card"><div class="av-head"><span>Agenda do Joaquim</span></div>
-    <p class="av-empty">Assine uma vez e a guarda e os avisos aparecem no seu calendário, numa agenda separada chamada Joaquim. Só os avisos pontuais têm alerta.</p>
-    <div class="cal-links"><a class="btn ghost" href="${google}" target="_blank" rel="noopener">Google Agenda</a><a class="btn ghost" href="${webcal}">iPhone</a></div>
+    <p class="av-empty">Coloque a guarda e os avisos no seu calendário, numa agenda separada chamada Joaquim. Ela se atualiza sozinha.</p>
+    <div class="cal-links"><button class="btn ghost" onclick="gcalOpen=!gcalOpen;render()">Google Agenda</button><a class="btn ghost" href="${webcal}">iPhone</a></div>
+    ${gcalOpen?`<ol class="steps">
+      <li>Copie o link da agenda.<button class="small-btn" onclick="copyIcs()">Copiar link</button></li>
+      <li>No computador, abra <b>calendar.google.com</b>.</li>
+      <li>Em <b>Outras agendas</b>, toque em <b>+</b> e depois em <b>Do URL</b>. Cole o link e confirme.</li>
+      <li>No app do Google no celular, se a agenda não aparecer, vá em Configurações › Joaquim e ligue <b>Sincronizar</b>.</li>
+    </ol>
+    <p class="av-more">O Google atualiza a cada algumas horas e não toca alertas de agenda assinada. Os alertas chegam pelo sininho do app.</p>`:''}
   </section>`;
+}
+let gcalOpen=false;
+async function copyIcs(){
+  const url='https://'+ICS_HOST;
+  try{await navigator.clipboard.writeText(url);toast('Link copiado');}
+  catch(e){prompt('Copie o link:',url);}
 }
 function renderProx7(){
   const td=today(),lim=addDays(td,7),am=addDays(td,1);
@@ -1115,7 +1130,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261017103806';
+const BUILD='20261017104544';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
