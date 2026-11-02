@@ -399,6 +399,26 @@ function buildHolidays(y){
   return hol;
 }
 
+// Quem ficou com cada feriado em 2026 (Carnaval e Semana Santa foram antes do app)
+const FERIADO_2026={'Carnaval':E,'Sexta-feira Santa':R,'Tiradentes':R,'Dia do Trabalhador':E,'Corpus Christi':E,
+  'São João':R,'N.S. do Carmo':R,'Independência':R,'N.S. Aparecida / Crianças':E,'Finados':R,
+  'Proclamação da República':E,'Consciência Negra':R,'Imaculada Conceição':R};
+// Dias do feriado prolongado
+function blocoFeriado(nome,y,k){
+  const [Y,M,D]=k.split('-').map(Number);
+  const at=n=>{const d=new Date(Y,M-1,D+n);return dk(d.getFullYear(),d.getMonth(),d.getDate());};
+  const rng=(a,b)=>{const r=[];for(let i=a;i<=b;i++)r.push(at(i));return r;};
+  if(nome==='Carnaval')return rng(-3,1);          // sábado a quarta de cinzas
+  if(nome==='Sexta-feira Santa')return rng(0,2);  // sexta a domingo de Páscoa
+  const w=new Date(Y,M-1,D).getDay();
+  if(w===1)return rng(-2,0);   // segunda: sáb a seg
+  if(w===2)return rng(-3,0);   // terça: sáb a ter
+  if(w===3)return [k];         // quarta: só o dia
+  if(w===4)return rng(0,3);    // quinta: qui a dom
+  if(w===5)return rng(0,2);    // sexta: sex a dom
+  return [];                   // sábado ou domingo: segue o fim de semana normal
+}
+
 // ===== BUILD BASE SCHEDULE =====
 function buildBase(y){
   const s={},n={};
@@ -469,11 +489,23 @@ function buildBase(y){
   const fixedSet=new Set([xKey,nyKey,mdKey,fdKey,jbKey,ebKey,rbKey]);
   const altList=Object.keys(hol).filter(k=>!fixedSet.has(k)&&s[k]!==undefined).sort();
   // Par: começa Raquel, Ímpar: começa Eduardo
-  let turn=y%2===0;
-  for(const k of altList){
-    s[k]=turn?R:E;
-    n[k]=(hol[k]?.name||"Feriado")+" — alternado";
-    turn=!turn;
+  if(y===2026){
+    // 2026: regra antiga, mantida para não mudar o histórico
+    let turn=true;
+    for(const k of altList){s[k]=turn?R:E;n[k]=(hol[k]?.name||"Feriado")+" — alternado";turn=!turn;}
+  }else{
+    // 2027+: feriado prolongado vai inteiro para um dos dois, e inverte a cada ano
+    // a partir de quem ficou com ele em 2026 (já contando as trocas feitas)
+    const fixDays=new Set([...fixedSet,dk(y,11,24)]);
+    for(const k of Object.keys(hol).sort()){
+      let nome=hol[k].name;
+      if(nome==='Carnaval (Seg)')continue;
+      if(nome==='Carnaval (Ter)')nome='Carnaval';
+      if(!(nome in FERIADO_2026))continue;
+      const dono=(y-2026)%2===0?FERIADO_2026[nome]:(FERIADO_2026[nome]===R?E:R);
+      const dias=blocoFeriado(nome,y,k).filter(d=>d.slice(5,7)!=='01'&&!fixDays.has(d)&&s[d]!==undefined);
+      for(const d of dias){s[d]=dono;n[d]=`${nome} — ${dono===R?'mãe':'pai'} (feriado inteiro, alterna a cada ano)`;}
+    }
   }
 
   // ===== 2026: TROCAS ACORDADAS JUNHO =====
@@ -723,7 +755,7 @@ function renderCal(){
     <div><dt>Aniversário do Joaquim</dt><dd>${par} em ${year}</dd></div>
     <div><dt>Dia das Mães · aniv. Raquel</dt><dd>Raquel</dd></div>
     <div><dt>Dia dos Pais · aniv. Eduardo</dt><dd>Eduardo</dd></div>
-    <div><dt>Demais feriados</dt><dd>Alternam a cada ano</dd></div>
+    ${year>=2027?'<div><dt>Feriados prolongados</dt><dd>Inteiros com um dos dois, invertendo a cada ano</dd></div>':'<div><dt>Demais feriados</dt><dd>Alternam a cada ano</dd></div>'}
   </dl></details>`;
   return h;
 }
@@ -1126,7 +1158,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261017104917';
+const BUILD='20261102123703';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
