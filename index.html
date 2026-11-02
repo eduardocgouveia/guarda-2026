@@ -436,6 +436,11 @@ function buildBase(y){
       if(d<=15){s[k]=E;n[k]="🏖️ Férias — 1ª quinzena (pai)";continue;}
       else{s[k]=R;n[k]="🏖️ Férias — 2ª quinzena (mãe)";continue;}
     }
+    // July vacation (2027+): 1–15 mãe, 16–31 pai
+    if(y>=2027&&m===6){
+      if(d<=15){s[k]=R;n[k]="🏖️ Férias de julho — 1ª quinzena (mãe)";continue;}
+      else{s[k]=E;n[k]="🏖️ Férias de julho — 2ª quinzena (pai)";continue;}
+    }
 
     // Regular weekly schedule
     const w=gdow(y,m,d);
@@ -475,8 +480,8 @@ function buildBase(y){
   // Aniversário Joaquim alternado: par=mãe, ímpar=pai
   const jbKey=dk(y,6,20);
   if(s[jbKey]!==undefined){
-    s[jbKey]=y%2===0?R:E;
-    n[jbKey]=`🎂 Aniv. Joaquim — alternado (${y}: ${y%2===0?'mãe':'pai'})`;
+    if(y>=2027){s[jbKey]=S;n[jbKey]="🎂 Aniv. Joaquim — dia dos dois";}
+    else{s[jbKey]=y%2===0?R:E;n[jbKey]=`🎂 Aniv. Joaquim — alternado (${y}: ${y%2===0?'mãe':'pai'})`;}
   }
   // Aniversário Eduardo → fixo pai
   const ebKey=dk(y,6,27);
@@ -503,7 +508,7 @@ function buildBase(y){
       if(nome==='Carnaval (Ter)')nome='Carnaval';
       if(!(nome in FERIADO_2026))continue;
       const dono=(y-2026)%2===0?FERIADO_2026[nome]:(FERIADO_2026[nome]===R?E:R);
-      const dias=blocoFeriado(nome,y,k).filter(d=>d.slice(5,7)!=='01'&&!fixDays.has(d)&&s[d]!==undefined);
+      const dias=blocoFeriado(nome,y,k).filter(d=>d.slice(5,7)!=='01'&&d.slice(5,7)!=='07'&&!fixDays.has(d)&&s[d]!==undefined);
       for(const d of dias){s[d]=dono;n[d]=`${nome} — ${dono===R?'mãe':'pai'} (feriado inteiro, alterna a cada ano)`;}
     }
   }
@@ -730,6 +735,7 @@ function renderCal(){
       </div>
     </div>
     ${year>=2027&&month===0?`<div class="note">Férias de janeiro: dias 1 a 15 com Eduardo, 16 a 31 com Raquel.</div>`:''}
+    ${year>=2027&&month===6?`<div class="note">Férias de julho: dias 1 a 15 com Raquel, 16 a 31 com Eduardo. Dia 20, aniversário do Joaquim, é dos dois.</div>`:''}
     <div class="wk">${DL.map(d=>`<span>${d}</span>`).join('')}</div>
     <div class="grid${anim}" id="grid">`;
   const first=gdow(year,month,1);
@@ -749,10 +755,10 @@ function renderCal(){
     <div><dt>Segunda e terça</dt><dd>Raquel</dd></div>
     <div><dt>Quarta e quinta</dt><dd>Eduardo</dd></div>
     <div><dt>Sexta a domingo</dt><dd>Alternados</dd></div>
-    ${year>=2027?'<div><dt>Férias de janeiro</dt><dd>1–15 Eduardo · 16–31 Raquel</dd></div>':''}
+    ${year>=2027?'<div><dt>Férias de janeiro</dt><dd>1–15 Eduardo · 16–31 Raquel</dd></div><div><dt>Férias de julho</dt><dd>1–15 Raquel · 16–31 Eduardo</dd></div>':''}
     <div><dt>Natal ${year}</dt><dd>${par}</dd></div>
     <div><dt>Ano Novo ${year}</dt><dd>${par}</dd></div>
-    <div><dt>Aniversário do Joaquim</dt><dd>${par} em ${year}</dd></div>
+    <div><dt>Aniversário do Joaquim</dt><dd>${year>=2027?'Dia dos dois':par+' em '+year}</dd></div>
     <div><dt>Dia das Mães · aniv. Raquel</dt><dd>Raquel</dd></div>
     <div><dt>Dia dos Pais · aniv. Eduardo</dt><dd>Eduardo</dd></div>
     ${year>=2027?'<div><dt>Feriados prolongados</dt><dd>Inteiros com um dos dois, invertendo a cada ano</dd></div>':'<div><dt>Demais feriados</dt><dd>Alternam a cada ano</dd></div>'}
@@ -1158,7 +1164,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261102124144';
+const BUILD='20261102142113';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
