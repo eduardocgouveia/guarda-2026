@@ -400,7 +400,7 @@ function buildHolidays(y){
 }
 
 // Quem ficou com cada feriado em 2026 (Carnaval e Semana Santa foram antes do app)
-const FERIADO_2026={'Carnaval':E,'Sexta-feira Santa':R,'Tiradentes':R,'Dia do Trabalhador':E,'Corpus Christi':E,
+const FERIADO_2026={'Carnaval':R,'Sexta-feira Santa':E,'Tiradentes':R,'Dia do Trabalhador':E,'Corpus Christi':E,
   'São João':R,'N.S. do Carmo':R,'Independência':R,'N.S. Aparecida / Crianças':E,'Finados':R,
   'Proclamação da República':E,'Consciência Negra':R,'Imaculada Conceição':R};
 // Dias do feriado prolongado
@@ -564,7 +564,7 @@ async function initFirebase(){
     if(error)throw error;
     if(year!==y0)return;
     changes={};
-    (data||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
+    (data||[]).forEach(r=>{if(r.parent===BASE[r.date_key])return;changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
     schedule={...BASE};
     for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
     localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
@@ -577,7 +577,7 @@ async function initFirebase(){
       .on('postgres_changes',{event:'*',schema:'public',table:'guarda_changes'},async()=>{
         const{data:d2}=await sb.from('guarda_changes').select('*').eq('year',year);
         changes={};
-        (d2||[]).forEach(r=>{changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
+        (d2||[]).forEach(r=>{if(r.parent===BASE[r.date_key])return;changes[r.date_key]={from:BASE[r.date_key],to:r.parent,by:r.changed_by||'?',at:r.changed_at,note:r.note||''};});
         schedule={...BASE};
         for(const[k,v]of Object.entries(changes)){schedule[k]=v.to;}
         localStorage.setItem(lsKey+'_s',JSON.stringify(schedule));
@@ -1158,7 +1158,7 @@ if(window.visualViewport){
 }
 
 // ===== ATUALIZAÇÃO AUTOMÁTICA =====
-const BUILD='20261102123703';
+const BUILD='20261102124144';
 async function checkVersion(){
   try{
     const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
